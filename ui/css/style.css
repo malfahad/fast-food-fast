@@ -1,0 +1,56 @@
+body {
+  background-color: #982121;
+}
+.header {
+  margin: auto;
+  padding: 5%;
+  background-color: #ff611d;
+  text-align: center;
+  width: 75%;
+}
+.content {
+  border: 3px;
+  border-color: #ff611d;
+  margin: auto;
+  margin-bottom: 5%;
+  padding: 5%;
+    background-image: url("../img/bg.png") ;
+    background-size: cover;
+  text-align: center;
+  width: 75%;
+  align-content: center;
+   font-family: sans-serif;
+
+}
+
+.heading {
+ font-family: sans-serif;
+
+}
+
+.main-title {
+
+}
+.form-login {
+  max-width: 50%;
+  margin: auto;
+  border: 2px solid;
+  background-color: white;
+  border-color:#e32929;
+}
+
+.form-group {
+  padding: 2%;
+  background-color: #ffb80b;
+  margin: auto;
+}
+
+.form-control{
+  margin: auto;
+  width: 50%;
+}
+.submit {
+  color: #ffffff;
+  padding: 2%;
+background-color: #e32929;
+}
