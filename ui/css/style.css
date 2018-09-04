@@ -85,11 +85,17 @@ a:hover{
   margin: auto;
 }
 .container {
-  background-color: #000000;
   padding: 3px;
   margin: auto;
 }
 
+.column-wide{
+  background-color: white;
+  margin: 1%;
+  float: left;
+  width: 95%;
+  padding: inherit;
+}
 .column-main{
   background-color: white;
   margin: 1%;
@@ -123,4 +129,22 @@ text-decoration: none;
 .menu-item-img {
   float: left;
   margin: 5px;
+}
+
+.order-status {
+  padding: 2px;
+  font-weight: bold;
+  color: white;
+}
+.confirmed {
+  background-color: #ffb80b;
+}
+.completed {
+  background-color: green;
+}
+.rejected {
+  background-color: red;
+}
+ul {
+  list-style-type: none;
 }
