@@ -43,10 +43,20 @@ body {
   background-color: #ffb80b;
   margin: auto;
 }
+.form-group2 {
+  padding: 2%;
+  background-color: #ffffff;
+  margin: auto;
+}
 
 .form-control{
   margin: auto;
   width: 50%;
+}
+.form-control2{
+  margin: auto;
+  width: 90%;
+  padding: inherit;
 }
 .submit {
   color: #ffffff;
@@ -85,16 +95,16 @@ a:hover{
   margin: auto;
 }
 .container {
-  padding: 3px;
+  background-color: white;
   margin: auto;
+  overflow: auto;
 }
 
 .column-wide{
   background-color: white;
-  margin: 1%;
+  margin: 2%;
   float: left;
-  width: 95%;
-  padding: inherit;
+  width: 100%;
 }
 .column-main{
   background-color: white;
@@ -110,6 +120,7 @@ a:hover{
   float: left;
   width: 28%;
   padding: inherit;
+  border-right: 2px solid #ffb80b;
 }
 .menu-item{
   border-bottom: 2px solid #ffb80b;
@@ -148,3 +159,7 @@ text-decoration: none;
 ul {
   list-style-type: none;
 }
+@media screen and (max-width: 600px) {
+    .column-main, .column-wide, .column-small {
+        width: 100%;
+    }
