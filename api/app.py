@@ -28,7 +28,7 @@ def admin_login():
 @app.route('/api/v1/login', methods=['POST'])
 def user_login():
     print request.form
-    if not "username" in request.get_json() or not "password" in request.get_json():
+    if not "username" in request.form() or not "password" in request.form():
         return jsonify({'error':'bad or corrupted data.'})
     else:
         username = request.get_json()["username"]

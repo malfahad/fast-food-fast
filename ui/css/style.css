@@ -48,7 +48,11 @@ body {
   background-color: #ffffff;
   margin: auto;
 }
-
+.server-error{
+  color: #FF0000;
+  font-size: small;
+  font-weight: bold;
+}
 .form-control{
   margin: auto;
   width: 50%;
@@ -63,6 +67,7 @@ body {
   padding: 2%;
   background-color: #e32929;
 }
+
 
 .heading-main {
   text-align: center;
@@ -155,6 +160,9 @@ text-decoration: none;
 }
 .rejected {
   background-color: red;
+}
+.created {
+  background-color: #982121;
 }
 ul {
   list-style-type: none;
