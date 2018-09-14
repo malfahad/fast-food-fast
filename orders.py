@@ -36,6 +36,11 @@ class menuItem:
 def add_menu_item(item):
     Menu[item.id] = item.json()
 
-for i in range(6):
-    m = menuItem("Fries","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",10000,"http://placehold.it/100x100")
-    add_menu_item(m)
+m = menuItem("French Fries","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",10000,"http://placehold.it/200x200")
+add_menu_item(m)
+m = menuItem("Fanta Soda","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",2000,"http://placehold.it/200x200")
+add_menu_item(m)
+m = menuItem("Veg Burger","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",20000,"http://placehold.it/200x200")
+add_menu_item(m)
+m = menuItem("Chicken Burger","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",15000,"http://placehold.it/200x200")
+add_menu_item(m)
