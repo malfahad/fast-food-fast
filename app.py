@@ -1,10 +1,10 @@
 from flask import Flask,request,Response,send_from_directory,render_template,jsonify,make_response,abort
 from flask_cors import CORS , cross_origin
+import sessions
+import orders
 app = Flask(__name__)
 CORS(app,expose_headers=["client-id","admin-client-id"])
 
-import sessions
-import orders
 O = orders.Order
 allOrders = orders.allOrders
 I = orders.menuItem
@@ -212,7 +212,6 @@ def fetchOrdersByClientId(clientId):
         if(allOrders[_id]['orderedBy'] == clientId):
             res.append(allOrders[_id])
     return res
-
 
 if __name__ == '__main__':
     app.run(use_realoader=True,threaded=True)
