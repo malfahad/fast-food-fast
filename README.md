@@ -1,9 +1,9 @@
 # fast-food-fast
 
 Fast food fast is a food ordering web application.
-This is branch is for the fast-food-fast api.
+This branch is for the fast-food-fast api.
 ## implemented endpoints
 
 ### 1 . Authentication
 
-'/api/v1/login' for user login  
+`/api/v1/login` for user login  
