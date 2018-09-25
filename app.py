@@ -38,12 +38,12 @@ def admin_login():
 def user_login():
     print request.form
     if not "username" in request.form or not "password" in request.form:
-        return jsonify({'error':'bad or corrupted data.'})
+        return jsonify({'error':'bad or corrupted data.'}),204
     else:
         username = request.form["username"]
         password = request.form["password"]
         if not sessions.userLogin(username,password):
-            return jsonify({'error':'invalid password or username'})
+            return jsonify({'error':'invalid password or username'}),200
         else:
             #write cookie here
             res = make_response(jsonify({'success':'You are loggged in as admin'}))
@@ -54,10 +54,8 @@ def user_login():
 
 @app.route('/api/v1/register', methods=['POST'])
 def user_register():
-    print request.form
-    print request.headers
     if not "username" in request.form or not "password" in request.form or not "full name" in request.form:
-        return jsonify({'error':'bad or corrupted data.'})
+        return jsonify({'error':'bad or corrupted data.'}),204
     else:
         full_name = request.form["full name"]
         username = request.form["username"]
@@ -70,8 +68,7 @@ def user_register():
             res = make_response(jsonify({'success':'You are loggged in '}))
             res.headers['client-id'] = value=sessions.getClientId(username)
             #res.set_cookie("client-id",value=sessions.getClientId(username))
-            print res.headers
-            return res
+            return res,200
 
 @app.route('/api/v1/logout')
 def get_logout():
@@ -79,13 +76,13 @@ def get_logout():
     if not request.headers.get('client-id') is None:
         id = request.headers.get('client-id')
         sessions.delete_session(id)
-    return jsonify({"success":"you are logged out"})
+    return jsonify({"success":"you are logged out"}),200
 
 @app.route('/api/v1/admin/logout')
 def get_admin_logout():
     #read and destroy cookie
     sessions.destroy_admin_sess()
-    return jsonify({"success":"you are logged out"})
+    return jsonify({"success":"you are logged out"}),200
 
 @app.route('/api/v1/me')
 def get_me():
@@ -129,21 +126,21 @@ def get_orders():
 @app.route('/api/v1/orders/<orderId>')
 def get_order(orderId):
     if orderId in allOrders:
-        return jsonify({orderId:allOrders[orderId]})
+        return jsonify({stauts:'success',message:'OrderId is valid, list of allOrders attached',orderId:allOrders[orderId]}),200
     else:
-        return jsonify({orderId:None})
+        return jsonify({stauts:'failed',message:'OrderId is invalid',orderId:None}),200
 
 
 
 @app.route('/api/v1/orders/by/<clientId>')
 def get_client_orders(clientId):
-    return jsonify({clientId:fetchOrdersByClientId(clientId)})
+    return jsonify({clientId:fetchOrdersByClientId(clientId)}),200
 
 @app.route('/api/v1/orders', methods=['POST'])
 def post_orders():
     print request.form
     if not "orderedBy" in request.form or not "total" in request.form or not "status" in request.form:
-        return jsonify({'error':'bad or corrupted data.'})
+        return jsonify({'error':'bad or corrupted data.'}),204
     else:
         orderedBy = request.form["orderedBy"]
         items = request.form["items"].split("##")
@@ -154,7 +151,7 @@ def post_orders():
         order.addTotal(total)
         order.updateStatus(status)
         allOrders[order.orderId] = order.json()
-        return jsonify(allOrders[order.orderId])
+        return jsonify(allOrders[order.orderId]),200
 
 @app.route('/api/v1/orders/<orderId>', methods=['PUT'])
 def put_order(orderId):
@@ -165,18 +162,18 @@ def put_order(orderId):
     else:
         status = request.form["status"]
         allOrders[orderId]['status'] = status
-        return jsonify({'success':'status updated to '+status})
+        return jsonify({'success':'status updated to '+status}),200
 #orders endpoints end here
 
 #menu endpoints start here
 @app.route('/api/v1/menu')
 def get_menu():
-    return jsonify(menu)
+    return jsonify(menu),200
 
 @app.route('/api/v1/menu', methods=['POST'])
 def post_to_menu():
     if not "title" in request.form or not "desc" in request.form or not "amount" in request.form:
-        return jsonify({'error':'bad or corrupted data.'})
+        return jsonify({'error':'bad or corrupted data.'}),200
     else:
         title = request.form["title"]
         desc = request.form["desc"]
@@ -190,7 +187,7 @@ def post_to_menu():
             img = "http://placehold.it/200x200"
         menuItem = MenuItem(title,desc,amount,img)
         menu[menuItem.id] = menuItem.json()
-        return jsonify(menu[menuItem.id])
+        return jsonify(menu[menuItem.id]),200
 
 @app.route('/api/v1/menu/remove', methods=['POST'])
 def remove_from_menu():
