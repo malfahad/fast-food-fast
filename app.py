@@ -5,9 +5,9 @@ import orders
 app = Flask(__name__)
 CORS(app,expose_headers=["client-id","admin-client-id"])
 
-O = orders.Order
+Order = orders.Order
 allOrders = orders.allOrders
-I = orders.menuItem
+MenuItem = orders.menuItem
 menu = orders.Menu
 
 # /api home
@@ -93,12 +93,12 @@ def get_me():
     print request.headers
     if not request.headers.get('client-id') is None and not request.headers.get('client-id') is 'null':
         id = request.headers.get('client-id')
-        u = sessions.get_session(id)
-        if u == {}:
+        userSession = sessions.get_session(id)
+        if userSession == {}:
             print 'header client id '+request.headers.get('client-id')
             print 'server session with  client id '+str(sessions.get_session(id))
             abort(403)
-        return jsonify({"success":"you are logged in","data":u})
+        return jsonify({"success":"you are logged in","data":userSession})
     else:
         abort(403)
 
@@ -149,12 +149,12 @@ def post_orders():
         items = request.form["items"].split("##")
         total = request.form["total"]
         status = request.form["status"]
-        o = O(orderedBy)
-        o.addItems(items)
-        o.addTotal(total)
-        o.updateStatus(status)
-        allOrders[o.orderId] = o.json()
-        return jsonify(allOrders[o.orderId])
+        order = Order(orderedBy)
+        order.addItems(items)
+        order.addTotal(total)
+        order.updateStatus(status)
+        allOrders[order.orderId] = order.json()
+        return jsonify(allOrders[order.orderId])
 
 @app.route('/api/v1/orders/<orderId>', methods=['PUT'])
 def put_order(orderId):
@@ -188,9 +188,9 @@ def post_to_menu():
                 img = "http://placehold.it/200x200"
         else:
             img = "http://placehold.it/200x200"
-        i = I(title,desc,amount,img)
-        menu[i.id] = i.json()
-        return jsonify(menu[i.id])
+        menuItem = MenuItem(title,desc,amount,img)
+        menu[menuItem.id] = menuItem.json()
+        return jsonify(menu[menuItem.id])
 
 @app.route('/api/v1/menu/remove', methods=['POST'])
 def remove_from_menu():
