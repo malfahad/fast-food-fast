@@ -27,8 +27,3 @@ def test_sessions():
     assert userExists('johndoe@gmail.com')
     x = userLogin('johndoe@gmail.com','1234')
     assert x is True
-
-
-test_order()
-test_sessions()
-print("All tests passed ")
