@@ -6,8 +6,8 @@ app = Flask(__name__)
 CORS(app,expose_headers=["client-id","admin-client-id"])
 
 Order = orders.Order
-allOrders = orders.allOrders
-MenuItem = orders.menuItem
+all_orders = orders.all_orders
+MenuItem = orders.MenuItem
 menu = orders.Menu
 
 # /api home
@@ -23,7 +23,7 @@ def admin_login():
     else:
         username = request.form["username"]
         password = request.form["password"]
-        if sessions.adminLogin(username,password):
+        if sessions.admin_login(username,password):
             #write cookie here
             res = make_response(jsonify({'success':'You are loggged in as admin'}))
             sessions.activate_admin_session()
@@ -42,13 +42,13 @@ def user_login():
     else:
         username = request.form["username"]
         password = request.form["password"]
-        if not sessions.userLogin(username,password):
+        if not sessions.user_login(username,password):
             return jsonify({'error':'invalid password or username'}),200
         else:
             #write cookie here
             res = make_response(jsonify({'success':'You are loggged in as admin'}))
-            res.headers['client-id'] = value=sessions.getClientId(username)
-            #res.set_cookie("client-id",value=sessions.getClientId(username))
+            res.headers['client-id'] = value=sessions.get_client_id(username)
+            #res.set_cookie("client-id",value=sessions.get_client_id(username))
             return res
 
 
@@ -60,14 +60,14 @@ def user_register():
         full_name = request.form["full name"]
         username = request.form["username"]
         password = request.form["password"]
-        if sessions.userExists(username):
+        if sessions.user_exists(username):
             return jsonify({'error':'user already registered please login'})
         else:
-            sessions.userRegister(full_name,username,password)
+            sessions.user_register(full_name,username,password)
             #write cookie here
             res = make_response(jsonify({'success':'You are loggged in '}))
-            res.headers['client-id'] = value=sessions.getClientId(username)
-            #res.set_cookie("client-id",value=sessions.getClientId(username))
+            res.headers['client-id'] = value=sessions.get_client_id(username)
+            #res.set_cookie("client-id",value=sessions.get_client_id(username))
             return res,200
 
 @app.route('/api/v1/logout')
@@ -90,8 +90,8 @@ def get_me():
     print request.headers
     if not request.headers.get('client-id') is None and not request.headers.get('client-id') is 'null':
         id = request.headers.get('client-id')
-        userSession = sessions.get_session(id)
-        if userSession == {}:
+        user_session = sessions.get_session(id)
+        if user_session == {}:
             print 'header client id '+request.headers.get('client-id')
             print 'server session with  client id '+str(sessions.get_session(id))
             abort(403)
@@ -121,47 +121,47 @@ def get_me_admin():
 #orders endpoints start here
 @app.route('/api/v1/orders')
 def get_orders():
-    return jsonify(allOrders)
+    return jsonify(all_orders)
 
-@app.route('/api/v1/orders/<orderId>')
-def get_order(orderId):
-    if orderId in allOrders:
-        return jsonify({stauts:'success',message:'OrderId is valid, list of allOrders attached',orderId:allOrders[orderId]}),200
+@app.route('/api/v1/orders/<Order_id>')
+def get_order(order_id):
+    if order_id in all_orders:
+        return jsonify({stauts:'success',message:'Order Id is valid, list of all Orders attached',order_id:all_orders[order_id]}),200
     else:
-        return jsonify({stauts:'failed',message:'OrderId is invalid',orderId:None}),200
+        return jsonify({stauts:'failed',message:'Order Id is invalid',order_id:None}),200
 
 
 
-@app.route('/api/v1/orders/by/<clientId>')
-def get_client_orders(clientId):
-    return jsonify({clientId:fetchOrdersByClientId(clientId)}),200
+@app.route('/api/v1/orders/by/<client_id>')
+def get_client_orders(client_id):
+    return jsonify({client_id:fetch_orders_by_client_id(client_id)}),200
 
 @app.route('/api/v1/orders', methods=['POST'])
 def post_orders():
     print request.form
-    if not "orderedBy" in request.form or not "total" in request.form or not "status" in request.form:
+    if not "ordered_by" in request.form or not "total" in request.form or not "status" in request.form:
         return jsonify({'error':'bad or corrupted data.'}),204
     else:
-        orderedBy = request.form["orderedBy"]
+        ordered_by = request.form["ordered_by"]
         items = request.form["items"].split("##")
         total = request.form["total"]
         status = request.form["status"]
-        order = Order(orderedBy)
-        order.addItems(items)
-        order.addTotal(total)
-        order.updateStatus(status)
-        allOrders[order.orderId] = order.json()
-        return jsonify(allOrders[order.orderId]),200
+        order = Order(ordered_by)
+        order.add_items(items)
+        order.add_total(total)
+        order.update_status(status)
+        all_orders[order.order_id] = order.json()
+        return jsonify(all_orders[order.order_id]),200
 
-@app.route('/api/v1/orders/<orderId>', methods=['PUT'])
-def put_order(orderId):
+@app.route('/api/v1/orders/<order_id>', methods=['PUT'])
+def put_order(order_id):
     if not "status" in request.form:
         return jsonify({'error':'bad or corrupted data.'})
-    elif not orderId in allOrders:
+    elif not order_id in all_orders:
         return jsonify({'error':'unknown order Id.'})
     else:
         status = request.form["status"]
-        allOrders[orderId]['status'] = status
+        all_orders[order_id]['status'] = status
         return jsonify({'success':'status updated to '+status}),200
 #orders endpoints end here
 
@@ -185,9 +185,9 @@ def post_to_menu():
                 img = "http://placehold.it/200x200"
         else:
             img = "http://placehold.it/200x200"
-        menuItem = MenuItem(title,desc,amount,img)
-        menu[menuItem.id] = menuItem.json()
-        return jsonify(menu[menuItem.id]),200
+        menu_item = MenuItem(title,desc,amount,img)
+        menu[menu_item.id] = menuItem.json()
+        return jsonify(menu[menu_item.id]),200
 
 @app.route('/api/v1/menu/remove', methods=['POST'])
 def remove_from_menu():
@@ -203,11 +203,11 @@ def remove_from_menu():
             return res(jsonify({'error':'menu item '+_id+' does not exist'}))
 #menu endpoints end here
 
-def fetchOrdersByClientId(clientId):
+def fetch_orders_by_client_id(client_id):
     res = []
-    for _id in allOrders.keys():
-        if(allOrders[_id]['orderedBy'] == clientId):
-            res.append(allOrders[_id])
+    for _id in all_orders.keys():
+        if(all_orders[_id]['ordered_by'] == client_id):
+            res.append(all_orders[_id])
     return res
 
 if __name__ == '__main__':

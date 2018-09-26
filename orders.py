@@ -1,29 +1,30 @@
 import uuid
 
-allOrders = {}
+all_orders = {}
+
 
 class Order:
     def __init__(self,by):
-        self.orderId = uuid.uuid4().hex
+        self.order_id = uuid.uuid4().hex
         self.items = []
         self.by =   by
         self.status = 'CREATED'
 
-    def addItems(self,items):
+    def add_items(self,items):
         for item in items:
             self.items.append(item)
-    def addTotal(self,total):
+    def add_total(self,total):
         self.total = total
 
-    def updateStatus(self,status):
+    def update_status(self,status):
         self.status = status
 
     def json(self):
-        return {'orderId':self.orderId,'orderedBy':self.by,'items':self.items,'total':self.total,'status':self.status}
+        return {'order_id':self.order_id,'orderedBy':self.by,'items':self.items,'total':self.total,'status':self.status}
 
-Menu = {}
+menu = {}
 
-class menuItem:
+class MenuItem:
     def __init__(self,title,desc,amount,img):
         self.id = uuid.uuid4().hex
         self.title = title
@@ -36,11 +37,11 @@ class menuItem:
 def add_menu_item(item):
     Menu[item.id] = item.json()
 
-m = menuItem("French Fries","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",10000,"http://placehold.it/200x200")
+m = MenuItem("French Fries","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",10000,"http://placehold.it/200x200")
 add_menu_item(m)
-m = menuItem("Fanta Soda","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",2000,"http://placehold.it/200x200")
+m = MenuItem("Fanta Soda","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",2000,"http://placehold.it/200x200")
 add_menu_item(m)
-m = menuItem("Veg Burger","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",20000,"http://placehold.it/200x200")
+m = MenuItem("Veg Burger","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",20000,"http://placehold.it/200x200")
 add_menu_item(m)
-m = menuItem("Chicken Burger","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",15000,"http://placehold.it/200x200")
+m = MenuItem("Chicken Burger","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",15000,"http://placehold.it/200x200")
 add_menu_item(m)

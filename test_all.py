@@ -1,29 +1,29 @@
 import pytest
-from orders import Order,allOrders
+from orders import Order,all_orders
 from sessions import *
 
 def test_order():
-    o = Order('malende95@gmail.com')
-    assert isinstance(o,Order), 'Order object should be of instance order'
-    assert len(o.items) == 0,'Items length should be zero'
-    o.addItems(['abc','def','geh','ijk','lmn'])
-    o.addTotal(10000)
-    assert len(o.items) == 5,'Items length should be five'
-    allOrders[o.orderId] = o.json()
+    order = Order('malende95@gmail.com')
+    assert isinstance(order,Order), 'Order object should be of instance order'
+    assert len(order.items) == 0,'Items length should be zero'
+    order.addItems(['abc','def','geh','ijk','lmn'])
+    order.addTotal(10000)
+    assert len(order.items) == 5,'Items length should be five'
+    all_orders[order.order_id] = order.json()
     o.status == 'CREATED'
-    o.updateStatus('REJECTED')
+    o.update_status('REJECTED')
     assert o.status == 'REJECTED'
 
 def test_sessions():
-    assert type(Users) == type({})
+    assert type(users) == type({})
     assert 'admin' in admin
-    x = adminLogin('admin','wrongpassword')
+    x = admin_login('admin','wrongpassword')
     assert x is False
-    x = adminLogin('admin','admin')
+    x = admin_login('admin','admin')
     assert x is True
-    x = userLogin('johndoe@gmail.com','1234')
+    x = user_login('johndoe@gmail.com','1234')
     assert x is False
-    userRegister('John Doe','johndoe@gmail.com','1234')
-    assert userExists('johndoe@gmail.com')
-    x = userLogin('johndoe@gmail.com','1234')
+    user_register('John Doe','johndoe@gmail.com','1234')
+    assert user_exists('johndoe@gmail.com')
+    x = user_login('johndoe@gmail.com','1234')
     assert x is True

@@ -2,27 +2,27 @@ import uuid
 
 class Session:
     def __init__(self):
-        self.sessionId = uuid.uuid4().hex
+        self.session_id = uuid.uuid4().hex
 
-ActiveSessions = []
+active_sessions = []
 
-Users = {}
+users = {}
 admin = {'admin':'admin'}
 
-def adminLogin(username,password):
+def admin_login(username,password):
     return username == 'admin' and password == admin[username]
 
-def userLogin(username,password):
+def user_login(username,password):
     if username in Users:
-        return Users[username]['password'] == password
+        return users[username]['password'] == password
     else:
         return False
 
-def userExists(username):
-    return username in Users
+def user_exists(username):
+    return username in users
 
-def userRegister(full_name,username,password):
-    Users[username] = {
+def user_register(full_name,username,password):
+    users[username] = {
     'password':password,
     'full name':full_name,
     'username':username,
@@ -32,40 +32,40 @@ def userRegister(full_name,username,password):
 def get_session(client_id):
     if type(client_id) == type(None):
         return {}
-    for userKey in Users.keys():
-        if Users[userKey]['client id'] == client_id:
-            return Users[userKey]
+    for user_key in users.keys():
+        if users[user_key]['client id'] == client_id:
+            return users[userKey]
     return {}
 
 def delete_session(client_id):
     if type(client_id) == type(None):
         return
-    for userKey in Users.keys():
-        if Users[userKey]['client id'] == client_id:
-            del Users[userKey]
+    for user_key in users.keys():
+        if users[user_key]['client id'] == client_id:
+            del users[userKey]
 
 def get_admin_session():
-    print adminSess.get_id()
-    if adminSess.active :
-        return adminSess.get_id()
+    print admin_sess.get_id()
+    if admin_sess.active :
+        return admin_sess.get_id()
     else:
         return None
 
 def activate_admin_session():
-    adminSess.activate()
+    admin_sess.activate()
 
 def set_admin_session():
-    adminSess = AdminSess()
-    print adminSess.get_id()
+    admin_sess = AdminSess()
+    print admin_sess.get_id()
 
 def destroy_admin_sess():
-    adminSess.destroy()
+    admin_sess.destroy()
 
 def get_unique_id():
     return uuid.uuid4().hex
 
 def getClientId(username):
-    return Users[username]['client id']
+    return users[username]['client id']
 
 
 class AdminSess:
@@ -79,4 +79,4 @@ class AdminSess:
     def destroy():
         self.active = False
 
-adminSess = AdminSess()
+admin_sess = AdminSess()
