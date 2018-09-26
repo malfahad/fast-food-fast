@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/malfahad/fast-food-fast.svg?branch=heroku)](https://travis-ci.org/malfahad/fast-food-fast)
 
+[![Coverage Status](https://coveralls.io/repos/github/malfahad/fast-food-fast/badge.svg?branch=master)](https://coveralls.io/github/malfahad/fast-food-fast?branch=heroku)
+
 # fast-food-fast
 
 Fast food fast is a food ordering web application.
