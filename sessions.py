@@ -13,7 +13,7 @@ def admin_login(username,password):
     return username == 'admin' and password == admin[username]
 
 def user_login(username,password):
-    if username in Users:
+    if username in users:
         return users[username]['password'] == password
     else:
         return False

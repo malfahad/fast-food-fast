@@ -6,13 +6,13 @@ def test_order():
     order = Order('malende95@gmail.com')
     assert isinstance(order,Order), 'Order object should be of instance order'
     assert len(order.items) == 0,'Items length should be zero'
-    order.addItems(['abc','def','geh','ijk','lmn'])
-    order.addTotal(10000)
+    order.add_items(['abc','def','geh','ijk','lmn'])
+    order.add_total(10000)
     assert len(order.items) == 5,'Items length should be five'
     all_orders[order.order_id] = order.json()
-    o.status == 'CREATED'
-    o.update_status('REJECTED')
-    assert o.status == 'REJECTED'
+    order.status == 'CREATED'
+    order.update_status('REJECTED')
+    assert order.status == 'REJECTED'
 
 def test_sessions():
     assert type(users) == type({})

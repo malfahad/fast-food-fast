@@ -35,7 +35,7 @@ class MenuItem:
         return {'id':self.id,'title':self.title,'desc':self.desc,'amount':self.amount,'img':self.img}
 
 def add_menu_item(item):
-    Menu[item.id] = item.json()
+    menu[item.id] = item.json()
 
 m = MenuItem("French Fries","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",10000,"http://placehold.it/200x200")
 add_menu_item(m)
