@@ -8,7 +8,7 @@ CORS(app,expose_headers=["client-id","admin-client-id"])
 Order = orders.Order
 all_orders = orders.all_orders
 MenuItem = orders.MenuItem
-menu = orders.Menu
+menu = orders.menu
 
 # /api home
 @app.route('/api/v1')
