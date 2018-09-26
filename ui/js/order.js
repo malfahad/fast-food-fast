@@ -1,61 +1,13 @@
-/*
-
-function prepareOrders(){
-$(document).ready(function () {
-  console.log('orders.html is ready')
-
-    $.get(api_domain+'/orders',function(data,status){
-      console.log(status);
-      console.log(data);
-    })
-
-
-
-})
-}
-
-function submitOrder(){
-
-    $('#form-user-signup').submit(function(e){
-    e.preventDefault();
-    $('#server-error').hide();
-    var fn = $('#user_signup_fullname').val();
-    var u = $('#user_signup_username').val();
-    var p = $('#user_signup_password').val();
-    var p2 = $('#user_signup_password2').val();
-
-    if(p != p2){
-      $('#server-error').text("passwords do not match")
-        $('#server-error').show();
-        return;
-      }
-      console.log({'full name':fn,'username':u,'password':p})
-    $.post(api_domain+'/register',{'full name':fn,'username':u,'password':p},function(data,status){
-      if(status == 'success'){
-        if(data['error'] != undefined){
-          $('#server-error').text(data['error'])
-            $('#server-error').show();
-        }else{
-          moveto('orders.html')
-        }
-      }
-    });
-  });
-
-}
-*/
-
 function submitOrder(){
   var a = []
-
   $("#order-summary").children().each(function(i){
     a.push($(this).text())
     if ($("#order-summary").children().length - $(this).index() == 1){
       var t = $("#order-total").text();
       a  = a.join("##")
-      console.log({'orderedBy':localStorage.getItem("client-id"),'total':t,'items':a,'status':'CREATED'})
+      console.log({'ordered_by':localStorage.getItem("client-id"),'total':t,'items':a,'status':'CREATED'})
       make_network_call(api_domain+'/orders',
-        {'orderedBy':localStorage.getItem("client-id"),'total':t,'items':a,'status':'CREATED'},
+        {'ordered_by':localStorage.getItem("client-id"),'total':t,'items':a,'status':'CREATED'},
         'POST',
         function(data,status,request){
           if(data["error"] != undefined)
@@ -160,16 +112,12 @@ function prepareOrderHistory(_for){
     data = data.reverse()
     data.forEach(function(item){addOrderHistoryItem(item,_for)});
   }
-
   })
 
 }
 }
 
-
-
 function addOrderHistoryItem(item,_for){
-
   i = "<img class=\"menu-item-img\" src=\"http://placehold.it/200x200\">\n";
   t = "<h4 class=\"heading menu-item-title\"> Order id #"+item.orderId+" </h4>\n"
   d =   "<ul> "+makeHtml(item.items)+" </ul>\n"

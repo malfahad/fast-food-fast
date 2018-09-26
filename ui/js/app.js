@@ -1,7 +1,7 @@
 //localhost
-//var api_domain = "http://127.0.0.1:5000/api/v1"
+var api_domain = "http://127.0.0.1:5000/api/v1"
 //remote
-var api_domain = "https://andelafastfoodfast.herokuapp.com/api/v1"
+//var api_domain = "https://andelafastfoodfast.herokuapp.com/api/v1"
 
 $('#form-admin-login').submit(function(e){
   e.preventDefault();
