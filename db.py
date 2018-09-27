@@ -49,11 +49,6 @@ class DB:
                                                     PRIMARY KEY (username) ); """
         self.cursor.execute(command);
 
-    def create_admin(self,username,password,full_name):
-        self.values = {'username':username,'password':password,'full_name':full_name};
-        self.command = """ INSERT INTO Admins(username,password,full_name) VALUES (%(username)s,%(password)s,%(full_name)s); """
-        self.execute()
-
     def execute(self,operation = 'INSERT'):
         try:
             self.cursor.execute(self.command,(self.values))
