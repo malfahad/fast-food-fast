@@ -3,3 +3,4 @@ orders.pyc
 sessions.pyc
 env
 .pytest_cache
+__pycache__
