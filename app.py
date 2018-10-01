@@ -6,9 +6,7 @@ app = Flask(__name__)
 CORS(app,expose_headers=["client-id","admin-client-id"])
 
 Order = orders.Order
-all_orders = orders.all_orders
 MenuItem = orders.MenuItem
-menu = orders.menu
 
 # /api home
 @app.route('/api/v1')
@@ -121,26 +119,26 @@ def get_me_admin():
 #orders endpoints start here
 @app.route('/api/v1/orders')
 def get_orders():
-    return jsonify(all_orders)
+    return jsonify(orders.get_orders())
 
-@app.route('/api/v1/orders/<Order_id>')
+@app.route('/api/v1/orders/<order_id>')
 def get_order(order_id):
-    if order_id in all_orders:
-        return jsonify({stauts:'success',message:'Order Id is valid, list of all Orders attached',order_id:all_orders[order_id]}),200
+    order = orders.get_order_by_id(order_id)
+    if not order is None:
+        return jsonify({'status':'success','message':'Order Id is valid, list of all Orders attached',order_id:order}),200
     else:
-        return jsonify({stauts:'failed',message:'Order Id is invalid',order_id:None}),200
+        return jsonify({'status':'failed','message':'Order Id is invalid',order_id:None}),200
 
 
 
 @app.route('/api/v1/orders/by/<client_id>')
 def get_client_orders(client_id):
-    return jsonify({client_id:fetch_orders_by_client_id(client_id)}),200
+    return jsonify({client_id:orders.get_order_by_client_id(client_id)}),200
 
 @app.route('/api/v1/orders', methods=['POST'])
 def post_orders():
-    print request.form
     if not "ordered_by" in request.form or not "total" in request.form or not "status" in request.form:
-        return jsonify({'error':'bad or corrupted data.'}),204
+        return jsonify({'status':'error','message':'bad or corrupted data.'}),204
     else:
         ordered_by = request.form["ordered_by"]
         items = request.form["items"].split("##")
@@ -150,25 +148,28 @@ def post_orders():
         order.add_items(items)
         order.add_total(total)
         order.update_status(status)
-        all_orders[order.order_id] = order.json()
-        return jsonify(all_orders[order.order_id]),200
+        dbresult = order.save()
+        if dbresult:
+            return jsonify({'status':'success','message':'order added successfully'}),200
+        else:
+            return jsonify({'status':'error','message':'database error'}),400
 
 @app.route('/api/v1/orders/<order_id>', methods=['PUT'])
 def put_order(order_id):
     if not "status" in request.form:
         return jsonify({'error':'bad or corrupted data.'})
-    elif not order_id in all_orders:
+    elif not orders.get_order_by_id(order_id) is None:
         return jsonify({'error':'unknown order Id.'})
     else:
         status = request.form["status"]
-        all_orders[order_id]['status'] = status
+        orders_db.update_order_status(order_id,status)
         return jsonify({'success':'status updated to '+status}),200
 #orders endpoints end here
 
 #menu endpoints start here
 @app.route('/api/v1/menu')
 def get_menu():
-    return jsonify(menu),200
+    return jsonify(orders.get_menu()),200
 
 @app.route('/api/v1/menu', methods=['POST'])
 def post_to_menu():
@@ -186,8 +187,11 @@ def post_to_menu():
         else:
             img = "http://placehold.it/200x200"
         menu_item = MenuItem(title,desc,amount,img)
-        menu[menu_item.id] = menuItem.json()
-        return jsonify(menu[menu_item.id]),200
+        dbresult = menu_item.save()
+        if dbresult:
+            return jsonify({'status':'success','message':'order added successfully'}),200
+        else:
+            return jsonify({'status':'error','message':'database error'}),400
 
 @app.route('/api/v1/menu/remove', methods=['POST'])
 def remove_from_menu():
@@ -196,19 +200,14 @@ def remove_from_menu():
         return res(jsonify({'error':'bad or corrupted data.'}))
     else:
         _id = request.form["id"]
-        if not menu.get(_id) is None:
-            del menu[_id]
+        if not orders.get_menu_item(_id) is None:
+            orders.remove_menu_item(_id)
             return res(jsonify({'success':'menu item '+_id+' deleted'}))
         else:
             return res(jsonify({'error':'menu item '+_id+' does not exist'}))
 #menu endpoints end here
 
-def fetch_orders_by_client_id(client_id):
-    res = []
-    for _id in all_orders.keys():
-        if(all_orders[_id]['ordered_by'] == client_id):
-            res.append(all_orders[_id])
-    return res
+
 
 if __name__ == '__main__':
     app.run(use_realoader=True,threaded=True)

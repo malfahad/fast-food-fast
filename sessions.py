@@ -1,4 +1,8 @@
 import uuid
+import db
+
+users_db = db.UsersDB()
+admins_db = db.AdminsDB()
 
 class Session:
     def __init__(self):
@@ -10,24 +14,20 @@ users = {}
 admin = {'admin':'admin'}
 
 def admin_login(username,password):
-    return username == 'admin' and password == admin[username]
+    result = admins_db.get_admin(username,password)
+    return result != None and result != []
 
 def user_login(username,password):
-    if username in users:
-        return users[username]['password'] == password
-    else:
-        return False
+    result = users_db.get_user(username,password)
+    return result != None and result != []
 
 def user_exists(username):
-    return username in users
+    result = users_db.check_user(username)
+    return result != None and result != []
 
 def user_register(full_name,username,password):
-    users[username] = {
-    'password':password,
-    'full name':full_name,
-    'username':username,
-    'client id':get_unique_id()
-    }
+    result = users_db.insert_user(full_name,username,password)
+    return result
 
 def get_session(client_id):
     if type(client_id) == type(None):

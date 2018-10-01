@@ -1,6 +1,7 @@
 import uuid
-
-all_orders = {}
+import db
+orders_db = db.OrdersDB()
+menu_db = db.MenuDB()
 
 
 class Order:
@@ -21,8 +22,54 @@ class Order:
 
     def json(self):
         return {'order_id':self.order_id,'orderedBy':self.by,'items':self.items,'total':self.total,'status':self.status}
+    def save(self):
+        result =  orders_db.insert_order(self.json())
 
-menu = {}
+def get_orders():
+    rows = orders_db.get_orders()
+    result = {}
+    if rows == None:
+        return result
+    for row in rows:
+        result[row[0]] = {'order_id':row[0],
+                          'ordered_by':row[1],
+                          'items':row[2],
+                          'total':row[3],
+                          'status':row[4]}
+    return result
+
+
+def get_order_by_id(_id):
+    row = orders_db.get_order(_id)
+    if rows == None:
+        return rows
+    elif len(row) == 1:
+        row = row[0]
+        return {'order_id':row[0],
+                          'ordered_by':row[1],
+                          'items':row[2],
+                          'total':row[3],
+                          'status':row[4]}
+    else:
+        return None
+
+def get_order_by_client_id(_id):
+    rows = orders_db.get_orders_by_client_id(_id)
+    if rows == None:
+        return result
+    result = []
+    for row in rows:
+        result.append({'order_id':row[0],
+                       'ordered_by':row[1],
+                       'items':row[2],
+                       'total':row[3],
+                       'status':row[4]})
+    return result
+
+def update_order_status(_id,status):
+    return orders_db.update_order_status(_id,status)
+
+
 
 class MenuItem:
     def __init__(self,title,desc,amount,img):
@@ -32,16 +79,36 @@ class MenuItem:
         self.amount = amount
         self.img = img
     def json(self):
-        return {'id':self.id,'title':self.title,'desc':self.desc,'amount':self.amount,'img':self.img}
+        return {'id':self.id,'title':self.title,'description':self.desc,'amount':self.amount,'image_url':self.img}
+    def save(self):
+        return menu_db.insert_menu_item(self.json())
 
-def add_menu_item(item):
-    menu[item.id] = item.json()
 
-m = MenuItem("French Fries","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",10000,"http://placehold.it/200x200")
-add_menu_item(m)
-m = MenuItem("Fanta Soda","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",2000,"http://placehold.it/200x200")
-add_menu_item(m)
-m = MenuItem("Veg Burger","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",20000,"http://placehold.it/200x200")
-add_menu_item(m)
-m = MenuItem("Chicken Burger","This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. This is a sample food description. ",15000,"http://placehold.it/200x200")
-add_menu_item(m)
+def get_menu():
+    rows = menu_db.get_menu()
+    result = {}
+    if rows == None:
+        return result
+    for row in rows:
+        result[row[0]] = {'id':row[0],
+                          'title':row[1],
+                          'description':row[2],
+                          'amount':row[3],
+                          'image_url':row[4]}
+    return result
+
+def get_menu_item(_id):
+    row = menu_db.get_menu_item(_id)
+    if rows == None:
+        return rows
+    elif len(row) == 1:
+        row = row[0]
+        return {'id':row[0],
+                          'title':row[1],
+                          'description':row[2],
+                          'amount':row[3],
+                          'image_url':row[4]}
+    else:
+        return None
+def remove_menu_item(_id):
+    return menu_db.delete_menu_item(_id)
