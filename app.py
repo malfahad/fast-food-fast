@@ -1,12 +1,43 @@
-from flask import Flask,request,Response,send_from_directory,render_template,jsonify,make_response,abort
-from flask_cors import CORS , cross_origin
+from flask import Flask,request,Response,send_from_directory,render_template,jsonify,make_response,abort,g
+from functools import wraps
+from access import Access
 import sessions
 import orders
-app = Flask(__name__)
-CORS(app,expose_headers=["client-id","admin-client-id"])
 
+app = Flask(__name__)
 Order = orders.Order
 MenuItem = orders.MenuItem
+access = Access('my-secret-key')
+
+def ensure_admin_logged_in(f):
+    @wraps(f)
+    def decorated_function(*args,**kwargs):
+        token = request.headers.get('Authorization')
+        print access.decode_jwt_token(token)
+        print not access.is_blacklisted(token)
+        print 'admin' == access.decode_jwt_token(token).get('user')
+        if not access.is_blacklisted(token) and 'admin' == access.decode_jwt_token(token).get('user'):
+            g.user = 'admin'
+            g.token = token
+            return f(*args,**kwargs)
+        else:
+            abort(405)
+    return decorated_function
+
+
+def ensure_user_logged_in(f):
+    @wraps(f)
+    def decorated_function(*args,**kwargs):
+        token = request.headers.get('Authorization')
+        payload = access.decode_jwt_token(token)
+        if not access.is_blacklisted(token) and not payload.get('user') == None:
+            g.user = payload.get('user')
+            g.token = token
+            return f(*args,**kwargs)
+        else:
+            abort(405)
+    return decorated_function
+
 
 # /api home
 @app.route('/api/v1')
@@ -14,6 +45,7 @@ def home():
     return 'fast food fast api v1'
 
 #auth endpoints start here
+
 @app.route('/api/v1/admin/login', methods=['POST'])
 def admin_login():
     if not "username" in request.form or not "password" in request.form:
@@ -22,32 +54,18 @@ def admin_login():
         username = request.form["username"]
         password = request.form["password"]
         if sessions.admin_login(username,password):
-            #write cookie here
-            res = make_response(jsonify({'success':'You are loggged in as admin'}))
-            sessions.activate_admin_session()
-            res.headers['admin-client-id'] = sessions.get_admin_session()
-            #res.set_cookie("admin-client-id",value=sessions.get_unique_id())
-            print res.headers
+            token = access.encode_jwt_token('admin')
+            res = make_response(jsonify({'success':'You are loggged in as admin','authorization':token })),200
             return res
         else:
-            return jsonify({'error':'incorrect username or password'})
+            return jsonify({'error':'incorrect username or password'}),200
 
-@app.route('/api/v1/login', methods=['POST'])
-def user_login():
-    print request.form
-    if not "username" in request.form or not "password" in request.form:
-        return jsonify({'error':'bad or corrupted data.'}),204
-    else:
-        username = request.form["username"]
-        password = request.form["password"]
-        if not sessions.user_login(username,password):
-            return jsonify({'error':'invalid password or username'}),200
-        else:
-            #write cookie here
-            res = make_response(jsonify({'success':'You are loggged in as admin'}))
-            res.headers['client-id'] = value=sessions.get_client_id(username)
-            #res.set_cookie("client-id",value=sessions.get_client_id(username))
-            return res
+@app.route('/api/v1/admin/logout')
+@ensure_admin_logged_in
+def get_admin_logout():
+    access.blacklist_token(g.token,g.user)
+    return jsonify({"success":"you are logged out"}),200
+
 
 
 @app.route('/api/v1/register', methods=['POST'])
@@ -62,55 +80,32 @@ def user_register():
             return jsonify({'error':'user already registered please login'})
         else:
             sessions.user_register(full_name,username,password)
-            #write cookie here
-            res = make_response(jsonify({'success':'You are loggged in '}))
-            res.headers['client-id'] = value=sessions.get_client_id(username)
-            #res.set_cookie("client-id",value=sessions.get_client_id(username))
-            return res,200
+            #user is registered
+            token = access.encode_jwt_token(username)
+            res = make_response(jsonify({'success':'You are loggged in as '+username,'authorization':token}))
+            return res
+
+@app.route('/api/v1/login', methods=['POST'])
+def user_login():
+    if not "username" in request.form or not "password" in request.form:
+        return jsonify({'error':'bad or corrupted data.'}),200
+    else:
+        username = request.form["username"]
+        password = request.form["password"]
+        if not sessions.user_login(username,password):
+            return jsonify({'error':'invalid password or username'}),200
+        else:
+            #user is logged in
+            token = access.encode_jwt_token(username)
+            res = make_response(jsonify({'success':'You are loggged in as '+username,'authorization':token}))
+            return res
 
 @app.route('/api/v1/logout')
+@ensure_user_logged_in
 def get_logout():
-    #read and destroy client_id
-    if not request.headers.get('client-id') is None:
-        id = request.headers.get('client-id')
-        sessions.delete_session(id)
+    access.blacklist_token(g.token,g.token)
     return jsonify({"success":"you are logged out"}),200
 
-@app.route('/api/v1/admin/logout')
-def get_admin_logout():
-    #read and destroy cookie
-    sessions.destroy_admin_sess()
-    return jsonify({"success":"you are logged out"}),200
-
-@app.route('/api/v1/me')
-def get_me():
-    #read cookie and send session
-    print request.headers
-    if not request.headers.get('client-id') is None and not request.headers.get('client-id') is 'null':
-        id = request.headers.get('client-id')
-        user_session = sessions.get_session(id)
-        if user_session == {}:
-            print 'header client id '+request.headers.get('client-id')
-            print 'server session with  client id '+str(sessions.get_session(id))
-            abort(403)
-        return jsonify({"success":"you are logged in","data":userSession})
-    else:
-        abort(403)
-
-@app.route('/api/v1/admin/me')
-def get_me_admin():
-    #read cookie and send session
-    print request.headers
-    if not request.headers.get('admin-client-id') is 'null' and not sessions.get_admin_session() is None:
-        #request.cookies.get('admin-client-id')
-        if request.headers.get('admin-client-id') == sessions.get_admin_session():
-            return jsonify({"success":"you are logged in","data":{"username":"admin"}})
-        else:
-            print 'header admin client id '+request.headers.get('admin-client-id')
-            print 'server admin client id '+sessions.get_admin_session()
-            abort(403)
-    else:
-        abort(403)
 #auth endpoints end here
 
 
@@ -118,10 +113,12 @@ def get_me_admin():
 
 #orders endpoints start here
 @app.route('/api/v1/orders')
+@ensure_admin_logged_in
 def get_orders():
     return jsonify(orders.get_orders())
 
 @app.route('/api/v1/orders/<order_id>')
+@ensure_admin_logged_in
 def get_order(order_id):
     order = orders.get_order_by_id(order_id)
     if not order is None:
@@ -129,13 +126,13 @@ def get_order(order_id):
     else:
         return jsonify({'status':'failed','message':'Order Id is invalid',order_id:None}),200
 
-
-
 @app.route('/api/v1/orders/by/<client_id>')
+@ensure_user_logged_in
 def get_client_orders(client_id):
     return jsonify({client_id:orders.get_order_by_client_id(client_id)}),200
 
 @app.route('/api/v1/orders', methods=['POST'])
+@ensure_user_logged_in
 def post_orders():
     if not "ordered_by" in request.form or not "total" in request.form or not "status" in request.form:
         return jsonify({'status':'error','message':'bad or corrupted data.'}),204
@@ -155,6 +152,7 @@ def post_orders():
             return jsonify({'status':'error','message':'database error'}),400
 
 @app.route('/api/v1/orders/<order_id>', methods=['PUT'])
+@ensure_admin_logged_in
 def put_order(order_id):
     if not "status" in request.form:
         return jsonify({'error':'bad or corrupted data.'})
@@ -166,12 +164,15 @@ def put_order(order_id):
         return jsonify({'success':'status updated to '+status}),200
 #orders endpoints end here
 
+
+
 #menu endpoints start here
 @app.route('/api/v1/menu')
 def get_menu():
     return jsonify(orders.get_menu()),200
 
 @app.route('/api/v1/menu', methods=['POST'])
+@ensure_admin_logged_in
 def post_to_menu():
     if not "title" in request.form or not "desc" in request.form or not "amount" in request.form:
         return jsonify({'error':'bad or corrupted data.'}),200
@@ -194,17 +195,17 @@ def post_to_menu():
             return jsonify({'status':'error','message':'database error'}),400
 
 @app.route('/api/v1/menu/remove', methods=['POST'])
+@ensure_admin_logged_in
 def remove_from_menu():
-    res = make_response()
     if not "id" in request.form:
-        return res(jsonify({'error':'bad or corrupted data.'}))
+        return jsonify({'error':'bad or corrupted data.'})
     else:
         _id = request.form["id"]
         if not orders.get_menu_item(_id) is None:
             orders.remove_menu_item(_id)
-            return res(jsonify({'success':'menu item '+_id+' deleted'}))
+            return jsonify({'success':'menu item '+_id+' deleted'}),200
         else:
-            return res(jsonify({'error':'menu item '+_id+' does not exist'}))
+            return jsonify({'error':'menu item '+_id+' does not exist'}),200
 #menu endpoints end here
 
 

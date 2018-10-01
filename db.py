@@ -129,7 +129,7 @@ class MenuDB(DB):
         return self.execute()
     def get_menu_item(self,menu_id):
         self.values = {'menu_id':menu_id};
-        self.command = """ SELECT * FROM Orders WHERE _id=%(menu_id)s ; """
+        self.command = """ SELECT * FROM Menu WHERE _id=%(menu_id)s ; """
         return self.execute('SELECT')
     def get_menu(self):
         self.values = {'menu_id':None};

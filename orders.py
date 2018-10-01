@@ -40,11 +40,11 @@ def get_orders():
 
 
 def get_order_by_id(_id):
-    row = orders_db.get_order(_id)
+    rows = orders_db.get_order(_id)
     if rows == None:
         return rows
-    elif len(row) == 1:
-        row = row[0]
+    elif len(rows) == 1:
+        row = rows[0]
         return {'order_id':row[0],
                           'ordered_by':row[1],
                           'items':row[2],
@@ -98,11 +98,11 @@ def get_menu():
     return result
 
 def get_menu_item(_id):
-    row = menu_db.get_menu_item(_id)
+    rows = menu_db.get_menu_item(_id)
     if rows == None:
         return rows
-    elif len(row) == 1:
-        row = row[0]
+    elif len(rows) == 1:
+        row = rows[0]
         return {'id':row[0],
                           'title':row[1],
                           'description':row[2],

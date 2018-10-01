@@ -1,7 +1,5 @@
-db.pyc
-app.pyc
-orders.pyc
-sessions.pyc
+*.pyc
+*.json
 env
 .pytest_cache
 __pycache__
