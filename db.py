@@ -10,9 +10,11 @@ class DB:
                                     host = db_params.hostname,
                                     user = db_params.username,
                                     password = db_params.password,
-                                    port = db_params.port,
-                                    sslmode = 'require'
+                                    port = db_params.port
+                                    #,sslmode = 'require'
                                         )
+
+        #self.conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         self.cursor = self.conn.cursor()
         self.make_tables()
 
@@ -29,6 +31,7 @@ class DB:
                                                     full_name TEXT NOT NULL,
                                                     PRIMARY KEY (email) ); """
         self.cursor.execute(command);
+        self.conn.commit()
         command = """CREATE TABLE IF NOT EXISTS Orders(order_id TEXT NOT NULL,
                                                     orderedBy TEXT NOT NULL,
                                                     items TEXT[] NOT NULL,
@@ -37,6 +40,7 @@ class DB:
                                                     PRIMARY KEY (order_id) ); """
 
         self.cursor.execute(command);
+        self.conn.commit()
         command = """CREATE TABLE IF NOT EXISTS Menu( _id TEXT NOT NULL,
                                                     title TEXT NOT NULL,
                                                     description TEXT NOT NULL,
@@ -45,11 +49,13 @@ class DB:
                                                     PRIMARY KEY (_id) ); """
 
         self.cursor.execute(command);
+        self.conn.commit()
         command = """CREATE TABLE IF NOT EXISTS Admins(username TEXT NOT NULL,
                                                     password TEXT NOT NULL,
                                                     full_name TEXT NOT NULL,
                                                     PRIMARY KEY (username) ); """
         self.cursor.execute(command);
+        self.conn.commit()
 
     def execute(self,operation = 'INSERT'):
         try:
@@ -161,11 +167,6 @@ class AdminsDB(DB):
         return self.execute('DELETE')
 
 
-
-db_url = os.environ['DATABASE_URL']
-#usersDB = UsersDB()
-#adminsDB = AdminsDB()
-#menuDB = MenuDB()
-#ordersDB = OrdersDB()
-#db = DB(db_url)
-#db.drop_table('Orders')
+#read database url from enviroment variable
+#db_url = os.environ['DATABASE_URL']
+db_url = "postgress://postgres:postgres@localhost:5432/fastfoodfastlocal"
