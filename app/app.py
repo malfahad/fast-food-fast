@@ -1,31 +1,34 @@
 from flask import Flask,request,Response,send_from_directory,render_template,jsonify,make_response,abort,g
 from functools import wraps
-from access import Access
-import sessions
-import orders
+from utils.access import Access
+#from import sessions
+#import orders
+from controllers.auth import AuthController
+
 
 app = Flask(__name__)
-Order = orders.Order
-MenuItem = orders.MenuItem
+#Order = orders.Order
+#MenuItem = orders.MenuItem
 access = Access('my-secret-key')
+auth = AuthController()
 
 def ensure_admin_logged_in(f):
     @wraps(f)
     def decorated_function(*args,**kwargs):
         token = request.headers.get('Authorization')
-        print access.decode_jwt_token(token)
-        print not access.is_blacklisted(token)
-        print 'admin' == access.decode_jwt_token(token).get('user')
-        if not access.is_blacklisted(token) and 'admin' == access.decode_jwt_token(token).get('user'):
+        payload = access.decode_jwt_token(token)
+        print 'admin' == payload.get('user')
+        if not access.is_blacklisted(token) and payload.get('user_type') == 'admin':
             g.user = 'admin'
             g.token = token
+            g.user_type = payload.get('user_type')
             return f(*args,**kwargs)
         else:
-            abort(405)
+            abort(401)
     return decorated_function
 
 
-def ensure_user_logged_in(f):
+def ensure_logged_in(f):
     @wraps(f)
     def decorated_function(*args,**kwargs):
         token = request.headers.get('Authorization')
@@ -33,34 +36,44 @@ def ensure_user_logged_in(f):
         if not access.is_blacklisted(token) and not payload.get('user') == None:
             g.user = payload.get('user')
             g.token = token
+            g.user_type = payload.get('user_type')
             return f(*args,**kwargs)
         else:
-            abort(405)
+            abort(401)
+    return decorated_function
+
+
+
+def ensure_user_logged_in(f):
+    @wraps(f)
+    def decorated_function(*args,**kwargs):
+        token = request.headers.get('Authorization')
+        payload = access.decode_jwt_token(token)
+        if not access.is_blacklisted(token) and not payload.get('user') == None and payload.get('user_type') == 'not admin':
+            g.user = payload.get('user')
+            g.token = token
+            g.user_type = payload.get('user_type')
+            return f(*args,**kwargs)
+        else:
+            abort(401)
     return decorated_function
 
 
 # /api home
 @app.route('/api/v1')
 def home():
+    print "app environemnt is "+str(app.config['ENV'])
     return 'fast food fast api v1'
 
-#auth endpoints start here
+#auth endpoints start here(
 
-@app.route('/api/v1/admin/login', methods=['POST'])
+@app.route('/api/v1/auth/admin/login', methods=['POST'])
 def admin_login():
-    if not "username" in request.form or not "password" in request.form:
-        return jsonify({'error':'bad or corrupted data.'})
-    else:
-        username = request.form["username"]
-        password = request.form["password"]
-        if sessions.admin_login(username,password):
-            token = access.encode_jwt_token('admin')
-            res = make_response(jsonify({'success':'You are loggged in as admin','authorization':token })),200
-            return res
-        else:
-            return jsonify({'error':'incorrect username or password'}),200
+    data = request.get_json()
+    return auth.admin_login(data)
 
-@app.route('/api/v1/admin/logout')
+"""
+@app.route('/api/v1/auth/admin/logout')
 @ensure_admin_logged_in
 def get_admin_logout():
     access.blacklist_token(g.token,g.user)
@@ -68,24 +81,25 @@ def get_admin_logout():
 
 
 
-@app.route('/api/v1/register', methods=['POST'])
+@app.route('/api/v1/auth/register', methods=['POST'])
 def user_register():
-    if not "username" in request.form or not "password" in request.form or not "full name" in request.form:
-        return jsonify({'error':'bad or corrupted data.'}),204
+    data = request.get_json()
+    if not "username" in data or not "password" in data or not "full name" in data:
+        return jsonify({'error':'bad or corrupted data.'}),400
     else:
-        full_name = request.form["full name"]
-        username = request.form["username"]
-        password = request.form["password"]
+        full_name = data["full name"]
+        username = data["username"]
+        password = data["password"]
         if sessions.user_exists(username):
-            return jsonify({'error':'user already registered please login'})
+            return jsonify({'error':'user already registered please login'}),400
         else:
             sessions.user_register(full_name,username,password)
             #user is registered
-            token = access.encode_jwt_token(username)
-            res = make_response(jsonify({'success':'You are loggged in as '+username,'authorization':token}))
+            token = access.encode_jwt_token(username,'not admin')
+            res = make_response(jsonify({'success':'You are loggged in as '+username,'authorization':token})),200
             return res
 
-@app.route('/api/v1/login', methods=['POST'])
+@app.route('/api/v1/auth/login', methods=['POST'])
 def user_login():
     if not "username" in request.form or not "password" in request.form:
         return jsonify({'error':'bad or corrupted data.'}),200
@@ -96,16 +110,15 @@ def user_login():
             return jsonify({'error':'invalid password or username'}),200
         else:
             #user is logged in
-            token = access.encode_jwt_token(username)
+            token = access.encode_jwt_token(username,'not admin')
             res = make_response(jsonify({'success':'You are loggged in as '+username,'authorization':token}))
             return res
 
-@app.route('/api/v1/logout')
+@app.route('/api/v1/auth/logout')
 @ensure_user_logged_in
 def get_logout():
-    access.blacklist_token(g.token,g.token)
+    access.blacklist_token(g.token,g.user)
     return jsonify({"success":"you are logged out"}),200
-
 #auth endpoints end here
 
 
@@ -113,23 +126,23 @@ def get_logout():
 
 #orders endpoints start here
 @app.route('/api/v1/orders')
-@ensure_admin_logged_in
+@ensure_logged_in
 def get_orders():
-    return jsonify(orders.get_orders())
+    if g.user_type == 'admin':
+        return jsonify(orders.get_orders())
+    else:
+        return jsonify(orders.get_orders_for(g.user))
 
 @app.route('/api/v1/orders/<order_id>')
-@ensure_admin_logged_in
+@ensure_logged_in
 def get_order(order_id):
     order = orders.get_order_by_id(order_id)
     if not order is None:
+        if g.user_type != 'admin' and order['ordered_by'] != g.user:
+            abort(405);
         return jsonify({'status':'success','message':'Order Id is valid, list of all Orders attached',order_id:order}),200
     else:
         return jsonify({'status':'failed','message':'Order Id is invalid',order_id:None}),200
-
-@app.route('/api/v1/orders/by/<client_id>')
-@ensure_user_logged_in
-def get_client_orders(client_id):
-    return jsonify({client_id:orders.get_order_by_client_id(client_id)}),200
 
 @app.route('/api/v1/orders', methods=['POST'])
 @ensure_user_logged_in
@@ -138,7 +151,7 @@ def post_orders():
         return jsonify({'status':'error','message':'bad or corrupted data.'}),204
     else:
         ordered_by = request.form["ordered_by"]
-        items = request.form["items"].split("##")
+        items = request.form["items"]
         total = request.form["total"]
         status = request.form["status"]
         order = Order(ordered_by)
@@ -190,25 +203,18 @@ def post_to_menu():
         menu_item = MenuItem(title,desc,amount,img)
         dbresult = menu_item.save()
         if dbresult:
-            return jsonify({'status':'success','message':'order added successfully'}),200
+            return jsonify({'status':'success','message':'menu item  added successfully'}),200
         else:
             return jsonify({'status':'error','message':'database error'}),400
 
-@app.route('/api/v1/menu/remove', methods=['POST'])
+@app.route('/api/v1/menu/<id>', methods=['DELETE'])
 @ensure_admin_logged_in
-def remove_from_menu():
-    if not "id" in request.form:
-        return jsonify({'error':'bad or corrupted data.'})
+def remove_from_menu(id):
+    if not orders.get_menu_item(id) is None:
+        orders.remove_menu_item(id)
+        return jsonify({'success':'menu item '+id+' deleted'}),200
     else:
-        _id = request.form["id"]
-        if not orders.get_menu_item(_id) is None:
-            orders.remove_menu_item(_id)
-            return jsonify({'success':'menu item '+_id+' deleted'}),200
-        else:
-            return jsonify({'error':'menu item '+_id+' does not exist'}),200
+        return jsonify({'error':'menu item '+id+' does not exist'}),200
 #menu endpoints end here
 
-
-
-if __name__ == '__main__':
-    app.run(use_realoader=True,threaded=True)
+"""

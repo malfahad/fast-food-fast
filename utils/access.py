@@ -7,12 +7,13 @@ class Access:
         self.secret_key = secret_key
         self.load_blacklist()
 
-    def encode_jwt_token(self,user_id):
+    def encode_jwt_token(self,user_id,user_type):
         try:
             payload = {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1, seconds=5),
                 'iat': datetime.datetime.utcnow(),
-                'user': user_id
+                'user': user_id,
+                'user_type':user_type
             }
             return jwt.encode(payload,self.secret_key,algorithm='HS256')
         except Exception as e:
@@ -20,7 +21,7 @@ class Access:
 
     def decode_jwt_token(self,auth_header):
         try:
-            return jwt.decode(auth_header,self.secret_key,algorithm = 'HS256')
+            return jwt.decode(auth_header,self.secret_key,algorithms = ['HS256'])
         except:
             return {}
 

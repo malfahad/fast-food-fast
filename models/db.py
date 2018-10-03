@@ -1,6 +1,7 @@
 import os
 import psycopg2
 import urlparse
+import config
 
 class DB:
     def __init__ (self,url):
@@ -13,6 +14,7 @@ class DB:
                                     port = db_params.port
                                     #,sslmode = 'require'
                                         )
+
 
         #self.conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         self.cursor = self.conn.cursor()
@@ -74,6 +76,13 @@ class DB:
 class UsersDB(DB):
     def __init__(self):
         DB.__init__(self,db_url)
+
+    def get_next_id(self):
+        self.values = {}
+        self.command = """ SELECT email FROM Users; """
+        response = self.execute('SELECT')
+        return len(response)+1
+
     def insert_user(self,full_name,email,password):
         self.values = {'email':email,'password':password,'full_name':full_name};
         self.command = """ INSERT INTO Users(email,password,full_name) VALUES (%(email)s,%(password)s,%(full_name)s); """
@@ -100,6 +109,13 @@ class UsersDB(DB):
 class OrdersDB(DB):
     def __init__(self):
         DB.__init__(self,db_url)
+
+    def get_next_id(self):
+        self.values = {}
+        self.command = """ SELECT order_id FROM Orders; """
+        response = self.execute('SELECT')
+        return len(response)+1
+
     def insert_order(self,order_values):
         self.values = order_values;
         self.command = """ INSERT INTO Orders(order_id,items,orderedBy,total,status) VALUES (%(order_id)s,%(items)s,%(orderedBy)s,%(total)s,%(status)s); """
@@ -108,9 +124,9 @@ class OrdersDB(DB):
         self.values = {'order_id':order_id};
         self.command = """ SELECT * FROM Orders WHERE order_id=%(order_id)s ; """
         return self.execute('SELECT')
-    def get_orders_by_client_id(self,client_id):
-        self.values = {'order_id':client_id};
-        self.command = """ SELECT * FROM Orders WHERE order_by=%(client_id)s ; """
+    def get_orders_by_username(self,username):
+        self.values = {'order_by':username};
+        self.command = """ SELECT * FROM Orders WHERE order_by=%(orders_db)s ; """
         return self.execute('SELECT')
     def get_orders(self):
         self.values = {'order_id':None};
@@ -137,6 +153,13 @@ class MenuDB(DB):
         self.values = {'menu_id':menu_id};
         self.command = """ SELECT * FROM Menu WHERE _id=%(menu_id)s ; """
         return self.execute('SELECT')
+
+    def get_next_id(self):
+        self.values = {}
+        self.command = """ SELECT _id FROM Menu; """
+        response = self.execute('SELECT')
+        return len(response)+1
+
     def get_menu(self):
         self.values = {'menu_id':None};
         self.command = """ SELECT * FROM Menu ; """
@@ -150,6 +173,12 @@ class MenuDB(DB):
 class AdminsDB(DB):
     def __init__(self):
         DB.__init__(self,db_url)
+
+    def get_next_id(self):
+        self.values = {}
+        self.command = """ SELECT * FROM Admins; """
+        response = self.execute('SELECT')
+        return len(response)+1
 
     def insert_admin(self,full_name,username,password):
         self.values = {'username':username,'password':password,'full_name':full_name};
@@ -168,5 +197,11 @@ class AdminsDB(DB):
 
 
 #read database url from enviroment variable
-#db_url = os.environ['DATABASE_URL']
-db_url = "postgress://postgres:postgres@localhost:5432/fastfoodfastlocal"
+FLASK_ENV = os.environ.get('FLASK_ENV')
+print FLASK_ENV
+#db_url = config.PRODUCTION_DB_URL
+#db_url = "postgress://postgres:postgres@localhost:5432/fastfoodfastlocal"
+if FLASK_ENV == 'development':
+    db_url = config.DEVELOPMENT_DB_URL
+else:
+    db_url = config.PRODUCTION_DB_URL
