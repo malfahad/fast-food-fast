@@ -199,7 +199,7 @@ class AdminsDB(DB):
 #read database url from enviroment variable
 FLASK_ENV = os.environ.get('FLASK_ENV')
 print FLASK_ENV
-#db_url = config.PRODUCTION_DB_URL
+db_url = config.PRODUCTION_DB_URL
 #db_url = "postgress://postgres:postgres@localhost:5432/fastfoodfastlocal"
 if FLASK_ENV == 'development':
     db_url = config.DEVELOPMENT_DB_URL
