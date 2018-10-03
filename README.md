@@ -1,8 +1,3 @@
-[![Build Status](https://travis-ci.org/malfahad/fast-food-fast.svg?branch=heroku)](https://travis-ci.org/malfahad/fast-food-fast)
-
-[![Coverage Status](https://coveralls.io/repos/github/malfahad/fast-food-fast/badge.svg?branch=heroku)](https://coveralls.io/github/malfahad/fast-food-fast?branch=heroku)
-
-[![Maintainability](https://api.codeclimate.com/v1/badges/9e7dff2d8002fef34891/maintainability)](https://codeclimate.com/github/malfahad/fast-food-fast/maintainability)
 
 # fast-food-fast
 
