@@ -184,7 +184,7 @@ class AdminsDB(DB):
 
     def remove_test_data(self):
         self.values = {'username':'john.admin@gmail.com'}
-        self.command = """ DELETE FROM Users WHERE username=%(username)s; """
+        self.command = """ DELETE FROM Admins WHERE username=%(username)s; """
         response = self.execute('DELETE')
         print response
 
