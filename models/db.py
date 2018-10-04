@@ -196,8 +196,9 @@ class AdminsDB(DB):
 
     def insert_admin(self,full_name,username,password):
         self.values = {'username':username,'password':password,'full_name':full_name};
-        self.command = """ INSERT INTO Admins(username,password,full_name) VALUES (%(username)s,%(password)s,%(full_name)s); """
+        self.command = """  INSERT INTO Admins(username,password,full_name) VALUES (%(username)s,%(password)s,%(full_name)s); """
         return self.execute()
+
 
     def get_admin(self,username,password):
         self.values = {'username':username,'password':password};
