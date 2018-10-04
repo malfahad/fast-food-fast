@@ -49,17 +49,17 @@ def get_order_by_id(_id):
     else:
         return None
 
-def get_order_by_for(_id):
+def get_orders_for(_id):
     rows = orders_db.get_orders_by_username(_id)
-    if rows == None:
+    result = {}
+    if rows == None or rows == False:
         return result
-    result = []
     for row in rows:
-        result.append({'order_id':row[0],
+        result[row[0]]  = {'order_id':row[0],
                        'ordered_by':row[1],
                        'items':row[2],
                        'total':row[3],
-                       'status':row[4]})
+                       'status':row[4]}
     return result
 
 def update_order_status(_id,status):

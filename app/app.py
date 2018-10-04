@@ -27,7 +27,7 @@ def ensure_logged_in(f):
 @app.route('/api/v1')
 def home():
     print "app environemnt is "+str(app.config['ENV'])
-    return 'fast food fast api v1'
+    return 'fast food fast api v1' if not app.testing else 'api in testing'
 
 #auth endpoints start here
 @app.route('/api/v1/auth/admin/login', methods=['POST'])

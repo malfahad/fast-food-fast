@@ -30,10 +30,10 @@ class TestAPI(unittest.TestCase):
     def test_admin_logout(self):
         self.endpoint = '/api/v1/auth/admin/logout'
         self.endpoint_login = '/api/v1/auth/admin/login'
-        """ Test admin login without access token"""
+        """ Test admin logout without access token"""
         result = self.app.get(self.endpoint)
         self.assertEqual(result.status_code,401)
-        """ Test admin login with access token"""
+        """ Test admin logout with access token"""
         result = self.app.post(self.endpoint_login, data = json.dumps({'username':'admin','password':'admin'}),content_type='application/json')
         self.assertEqual(result.status_code,200)
         access_token = result.json["authorization"]
@@ -42,12 +42,3 @@ class TestAPI(unittest.TestCase):
         """ Test admin is actually logged out """
         result = self.app.get(self.endpoint)
         self.assertEqual(result.status_code,401)
-
-    def test_user_register(self):
-        self.endpoint = "/api/v1/auth/register"
-        """ Test user register with correct details """
-        result = self.app.post(self.endpoint, data = json.dumps({'full name':'John Doe','username':'johndoe520@gmail.com','password':'johndoe'}),content_type='application/json')
-        self.assertEqual(result.status_code,200)
-        """ Test user register when already exists """
-        result = self.app.post(self.endpoint, data = json.dumps({'full name':'John Doe','username':'johndoe@gmail.com','password':'johndoe'}),content_type='application/json')
-        self.assertEqual(result.status_code,400)
