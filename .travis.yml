@@ -6,7 +6,7 @@ install:
   - pip install pytest-cov
   - pip install coveralls
 script:
-  - ls
+  - export PYTHONPATH=/home/travis/build/malfahad/fast-food-fast
   - pytest --cov=app
 after_success:
   - coveralls
