@@ -180,6 +180,13 @@ class MenuDB(DB):
 class AdminsDB(DB):
     def __init__(self):
         DB.__init__(self,db_url)
+        self.remove_test_data()
+
+    def remove_test_data(self):
+        self.values = {'username':'john.admin@gmail.com'}
+        self.command = """ DELETE FROM Users WHERE username=%(username)s; """
+        response = self.execute('DELETE')
+        print response
 
     def get_next_id(self):
         self.values = {}
@@ -210,3 +217,5 @@ db_url = config.PRODUCTION_DB_URL
 #db_url = "postgress://postgres:postgres@localhost:5432/fastfoodfastlocal"
 if FLASK_ENV == 'development':
     db_url = config.DEVELOPMENT_DB_URL
+
+print 'CURRENT DB URL is '+db_url
