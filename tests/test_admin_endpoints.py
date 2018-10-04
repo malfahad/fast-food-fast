@@ -1,5 +1,5 @@
 import pytest
-from app.app import app
+from app import app
 import unittest
 import json
 from models import db
