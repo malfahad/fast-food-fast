@@ -74,37 +74,7 @@ class Validate:
         else:
             self.message = "email is invalid. please rectify. "
             return self
-
-"""
-result = Validate("password",None).is_atleast(6) \
-                                    .is_atmost(25)
-print result.status
-print result.message
-
-result = Validate("password","strongpassword").is_atleast(6) \
-                                    .is_atmost(25)
-print result.status
-print result.message
-
-result = Validate("email","wrongmail").is_atleast(6) \
-                                    .is_atmost(25) \
-                                    .is_an_email()
-print result.status
-print result.message
-
-result = Validate("full name","weird name1").is_atleast(6) \
-                                    .is_atmost(25) \
-                                    .has_no_numbers()
-print result.status
-print result.message
-
-result = Validate("items",["123,123,123"]).is_a_list() \
-                                    .has_items() \
-                                    .has_valid_order_items()
-print result.status
-print result.message
-"""
-
+            
 class Validation:
     def __init__(self):
         pass
