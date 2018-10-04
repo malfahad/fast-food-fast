@@ -1,5 +1,6 @@
 import re
-menuids = ['12','123','1']
+
+
 class Validate:
     def __init__(self,field,data):
         self.status = True
@@ -74,19 +75,20 @@ class Validate:
             self.message = "email is invalid. please rectify. "
             return self
 
+"""
 result = Validate("password",None).is_atleast(6) \
-                                    .is_atmost(25) \
+                                    .is_atmost(25)
 print result.status
 print result.message
 
 result = Validate("password","strongpassword").is_atleast(6) \
-                                    .is_atmost(25) \
+                                    .is_atmost(25)
 print result.status
 print result.message
 
 result = Validate("email","wrongmail").is_atleast(6) \
                                     .is_atmost(25) \
-                                    .is_an_email() \
+                                    .is_an_email()
 print result.status
 print result.message
 
@@ -101,3 +103,22 @@ result = Validate("items",["123,123,123"]).is_a_list() \
                                     .has_valid_order_items()
 print result.status
 print result.message
+"""
+
+class Validation:
+    def __init__(self):
+        pass
+    def validate_admin_usename(self,name):
+        result = Validate("username",name).is_atleast(4) \
+                                            .is_atmost(25)
+        return result
+    def validate_email(self,name):
+        result = Validate("email",name).is_atleast(7) \
+                                            .is_atmost(25) \
+                                            .is_an_email()
+        return result
+
+    def validate_password(self,password):
+        result = Validate("password",password).is_atleast(7) \
+                                        .is_atmost(20)
+        return result
