@@ -2,11 +2,12 @@ language: python
 python:
   - "2.7"
 install:
-  - pip install -r requirements.txt 
+  - pip install -r requirements.txt
   - pip install pytest
   - pip install pytest-cov
   - pip install coveralls
 script:
+  - export DATABASE_URL=$(heroku config:get DATABASE_URL -a myastfoodfast)
   - export PYTHONPATH=/home/travis/build/malfahad/fast-food-fast
   - pytest --cov=app
 after_success:
