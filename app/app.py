@@ -2,7 +2,7 @@ from flask import Flask,request,Response,send_from_directory,render_template,jso
 from utils.access import Access
 from utils.decorated_functions import *
 from controllers import AuthController,MenuController,OrdersController
-
+from utils.errors import InvalidUsage
 app = Flask(__name__)
 access = Access('my-secret-key')
 auth_controller = AuthController()
@@ -20,8 +20,15 @@ def ensure_logged_in(f):
             g.user_type = payload.get('user_type')
             return f(*args,**kwargs)
         else:
-            abort(401)
+            raise InvalidUsage('You are not authorised to access this resource',status_code=401)
     return decorated_function
+
+@app.errorhandler(InvalidUsage)
+def handle_bad_usage(error):
+    response = jsonify(error.to_json())
+    response.status_code = error.status_code
+    print 'bad usage handler'
+    return response
 
 # /api home
 @app.route('/api/v1')
