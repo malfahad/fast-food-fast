@@ -9,6 +9,6 @@ install:
 script:
   - export DATABASE_URL=postgres://qnqsxowzttamrj:0718a669df8e9589411bc684df46efab54b9ded3b4bec20ae6d0e25b5e373d38@ec2-54-225-97-112.compute-1.amazonaws.com:5432/d883mkmotls2c0
   - export PYTHONPATH=/home/travis/build/malfahad/fast-food-fast
-  - pytest --cov=$PYTHONPATH
+  - pytest --cov=$PYTHONPATH 
 after_success:
   - coveralls

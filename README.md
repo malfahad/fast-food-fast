@@ -10,6 +10,12 @@
 Fast food fast is a food ordering web application.
 This branch is for the fast-food-fast api. The app entry point is at ` app.py `
 
+
+#Documentation
+
+Documentation for this api is at:
+https://myfastfoodfast.docs.apiary.io
+
 ## implemented endpoints
 
 ### 1 . Authentication

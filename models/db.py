@@ -135,7 +135,7 @@ class OrdersDB(DB):
         return self.execute('SELECT')
     def update_order_status(self,order_id,status):
         self.values = {'order_id':order_id,'status':status};
-        self.command = """ UPDATE Orders SET status=%(status)s WHERE order_id=%(order_id) ; """
+        self.command = """ UPDATE Orders SET status=%(status)s WHERE order_id=%(order_id)s ; """
         print self.command
         return self.execute('UPDATE')
     def delete_order(self,order_id):
