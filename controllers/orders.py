@@ -1,11 +1,12 @@
 from flask import jsonify,g,request
-from models import orders
+from models import orders,auth
 from utils.access import Access
 
 access = Access('my-secret-key')
 
 class OrdersController:
     def __init__(self):
+        self.auth_model = auth.AuthModel()
         pass
     def get_orders(self):
         if g.user_type == 'admin':
@@ -28,11 +29,14 @@ class OrdersController:
         if data is None:
             return jsonify({'error':'No Json Data received. '}), 400
         if not "ordered_by" in data or not "total" in data  or not "items" in data:
+            ordered_by = data["ordered_by"].strip()
             return jsonify({'status':'error','message':'missing required field.'}),400
         else:
-            ordered_by = data["ordered_by"].strip()
             items = data["items"]
             total = data["total"]
+            exists = self.auth_model.user_exists(ordered_by)
+            if not exists:
+                    return jsonify({'status':'error','message':'ordered_by field contains unknown user.'}),400
             order = orders.Order(ordered_by)
             order.add_items(items)
             order.add_total(total)
