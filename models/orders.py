@@ -3,7 +3,6 @@ orders_db = db.OrdersDB()
 
 class Order:
     def __init__(self,by):
-        self.order_id = uuid.uuid4().hex
         self.items = []
         self.by =   by
         self.status = 'CREATED'
@@ -18,9 +17,9 @@ class Order:
         self.status = status
 
     def json(self):
-        return {'order_id':orders_db.get_next_id(),'orderedBy':self.by,'items':self.items,'total':self.total,'status':self.status}
+        return {'ordered_by':self.by,'items':self.items,'total':self.total,'status':self.status}
     def save(self):
-        result =  orders_db.insert_order(self.json())
+        return orders_db.insert_order(self.json())
 
 def get_orders():
     rows = orders_db.get_orders()

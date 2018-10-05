@@ -63,6 +63,7 @@ def get_logout():
 #auth endpoints end here
 
 
+
 #menu endpoints start here
 @app.route('/api/v1/menu')
 def get_menu():
@@ -108,6 +109,6 @@ def post_orders():
 def put_order(order_id):
     if g.user_type != 'admin':
         abort(401)#to be replaced with a proper error handler
-    data = request.json()
-    return orders_controller.update_order_status(data)
+    data = request.get_json()
+    return orders_controller.update_order_status(order_id,data)
 #orders endpoints end here

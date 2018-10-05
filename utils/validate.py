@@ -48,6 +48,20 @@ class Validate:
         else:
             self.message = self.field+" is not a list of items. please rectify"
             return self
+    def is_a_number(self):
+        if not self.status:
+            return self
+        try:
+            int(self.data)
+            self.status = True
+        except:
+            self.status = False
+        if self.status:
+            self.message = "Ok"
+            return self
+        else:
+            self.message = self.field+" is not a valid number. please rectify"
+            return self
 
     def has_items(self):
         if not self.status:
@@ -74,7 +88,7 @@ class Validate:
         else:
             self.message = "email is invalid. please rectify. "
             return self
-            
+
 class Validation:
     def __init__(self):
         pass
@@ -92,3 +106,28 @@ class Validation:
         result = Validate("password",password).is_atleast(7) \
                                         .is_atmost(20)
         return result
+
+    def validate_name(self,name):
+        result = Validate("Name",name).is_atleast(7) \
+                                        .is_atmost(25) \
+                                        .has_no_numbers()
+        return result
+    def validate_title(self,name):
+        result = Validate("title",name).is_atleast(3) \
+                                        .is_atmost(25) \
+                                        .has_no_numbers()
+        return result
+    def is_a_number(self,number):
+        result = Validate("amount",number).is_a_number()
+        return result
+    def validate_register(self,full_name,username,password):
+        result1 = self.validate_name(full_name)
+        if not result1.status:
+            return result1
+        result2 = self.validate_email(username)
+        if not result2.status:
+            return result2
+        result3 = self.validate_password(password)
+        if not result3.status:
+            return result3
+        return result1

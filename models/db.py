@@ -15,7 +15,6 @@ class DB:
                                     #,sslmode = 'require'
                                         )
 
-
         #self.conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         self.cursor = self.conn.cursor()
         self.make_tables()
@@ -34,8 +33,8 @@ class DB:
                                                     PRIMARY KEY (email) ); """
         self.cursor.execute(command);
         self.conn.commit()
-        command = """CREATE TABLE IF NOT EXISTS Orders(order_id TEXT NOT NULL,
-                                                    orderedBy TEXT NOT NULL,
+        command = """CREATE TABLE IF NOT EXISTS Orders(order_id SERIAL,
+                                                    ordered_by TEXT NOT NULL,
                                                     items TEXT[] NOT NULL,
                                                     total INT NOT NULL,
                                                     status TEXT NOT NULL,
@@ -43,7 +42,7 @@ class DB:
 
         self.cursor.execute(command);
         self.conn.commit()
-        command = """CREATE TABLE IF NOT EXISTS Menu( _id TEXT NOT NULL,
+        command = """CREATE TABLE IF NOT EXISTS Menu( _id SERIAL,
                                                     title TEXT NOT NULL,
                                                     description TEXT NOT NULL,
                                                     amount INT NOT NULL,
@@ -117,23 +116,18 @@ class OrdersDB(DB):
     def __init__(self):
         DB.__init__(self,db_url)
 
-    def get_next_id(self):
-        self.values = {}
-        self.command = """ SELECT order_id FROM Orders; """
-        response = self.execute('SELECT')
-        return len(response)+1
-
     def insert_order(self,order_values):
         self.values = order_values;
-        self.command = """ INSERT INTO Orders(order_id,items,orderedBy,total,status) VALUES (%(order_id)s,%(items)s,%(orderedBy)s,%(total)s,%(status)s); """
+        self.command = """ INSERT INTO Orders(items,ordered_by,total,status) VALUES (%(items)s,%(ordered_by)s,%(total)s,%(status)s); """
         return self.execute()
     def get_order(self,order_id):
         self.values = {'order_id':order_id};
         self.command = """ SELECT * FROM Orders WHERE order_id=%(order_id)s ; """
+        print self.command
         return self.execute('SELECT')
     def get_orders_by_username(self,username):
-        self.values = {'order_by':username};
-        self.command = """ SELECT * FROM Orders WHERE order_by=%(orders_db)s ; """
+        self.values = {'ordered_by':username};
+        self.command = """ SELECT * FROM Orders WHERE ordered_by=%(ordered_by)s ; """
         return self.execute('SELECT')
     def get_orders(self):
         self.values = {'order_id':None};
@@ -141,7 +135,8 @@ class OrdersDB(DB):
         return self.execute('SELECT')
     def update_order_status(self,order_id,status):
         self.values = {'order_id':order_id,'status':status};
-        self.command = """ UPDATE Orders SET status=%(status)s WHERE order_id=%(order_id)s ; """
+        self.command = """ UPDATE Orders SET status=%(status)s WHERE order_id=%(order_id) ; """
+        print self.command
         return self.execute('UPDATE')
     def delete_order(self,order_id):
         self.values = {'order_id':order_id};
@@ -154,18 +149,16 @@ class MenuDB(DB):
         DB.__init__(self,db_url)
     def insert_menu_item(self,menu_item_values):
         self.values = menu_item_values;
-        self.command = """ INSERT INTO Menu(_id,title,description,amount,image_url) VALUES (%(id)s,%(title)s,%(description)s,%(amount)s,%(image_url)s); """
+        self.command = """ INSERT INTO Menu(title,description,amount,image_url) VALUES (%(title)s,%(description)s,%(amount)s,%(image_url)s); """
         return self.execute()
     def get_menu_item(self,menu_id):
         self.values = {'menu_id':menu_id};
         self.command = """ SELECT * FROM Menu WHERE _id=%(menu_id)s ; """
         return self.execute('SELECT')
-
-    def get_next_id(self):
-        self.values = {}
-        self.command = """ SELECT _id FROM Menu; """
-        response = self.execute('SELECT')
-        return len(response)+1
+    def get_by_title(self,title):
+        self.values = {'title':title};
+        self.command = """ SELECT _id FROM Menu WHERE title=%(title)s ; """
+        return self.execute('SELECT')
 
     def get_menu(self):
         self.values = {'menu_id':None};
