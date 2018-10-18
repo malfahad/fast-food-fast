@@ -1,9 +1,11 @@
 from flask import Flask,request,Response,send_from_directory,render_template,jsonify,make_response,abort,g
+from flask_cors import CORS
 from utils.access import Access
 from utils.decorated_functions import *
 from controllers import AuthController,MenuController,OrdersController
 from utils.errors import InvalidUsage
 app = Flask(__name__)
+CORS(app)
 access = Access('my-secret-key')
 auth_controller = AuthController()
 menu_controller = MenuController()

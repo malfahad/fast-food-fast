@@ -39,9 +39,6 @@ class AuthController:
         else:
             email = data["email"]
             password = data["password"]
-            val_result = check_valid.validate_password(password)
-            if not val_result.status:
-                return jsonify({'error':val_result.message}),400
             if is_admin:
                 val_result = check_valid.validate_admin_usename(email)
                 if not val_result.status:
@@ -53,6 +50,9 @@ class AuthController:
                 else:
                     return jsonify({'error':'incorrect username or password'}),400
             else:
+                val_result = check_valid.validate_password(password)
+                if not val_result.status:
+                    return jsonify({'error':val_result.message}),400
                 val_result = check_valid.validate_email(email)
                 if not val_result.status:
                     return jsonify({'error':val_result.message}),400
