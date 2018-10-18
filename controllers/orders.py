@@ -24,31 +24,38 @@ class OrdersController:
                 abort(405);#this is not your order. to be replaced with error handler
             return jsonify({'status':'success','message':'Order Id is valid, list of all Orders attached','data':{order_id:order}}),200
 
-    def create_new_order(self,data):
+    def add_new_order(self,data):
         if data is None:
             return jsonify({'error':'No Json Data received. '}), 400
-        if not "ordered_by" in data or not "total" in data or not "status" in data or not "title" in data:
-            return jsonify({'status':'error','message':'bad or corrupted data.'}),204
+        if not "ordered_by" in data or not "total" in data  or not "items" in data:
+            return jsonify({'status':'error','message':'missing required field.'}),400
         else:
-            ordered_by = data["ordered_by"]
+            ordered_by = data["ordered_by"].strip()
             items = data["items"]
             total = data["total"]
-            status = data["status"]
-            order = Order(ordered_by)
+            order = orders.Order(ordered_by)
             order.add_items(items)
             order.add_total(total)
-            order.update_status(status)
             dbresult = order.save()
             if dbresult:
                 return jsonify({'status':'success','message':'order added successfully'}),200
             else:
                 return jsonify({'status':'error','message':'database error'}),400
-    def update_order_status(self):
+    def update_order_status(self,order_id,data):
         if data is None:
             return jsonify({'error':'No Json Data received. '}), 400
         if not "status" in data:
-            return jsonify({'error':'bad or corrupted data.'})
-        elif not orders.get_order_by_id(order_id) is None:
+            return jsonify({'error':'missing required field '})
+        try:
+            order_id = int(order_id)
+        except:
+            return jsonify({'error':'order id must be a number '})
+
+        status = data["status"].strip().upper()
+        statuses = ['CREATED','ACCEPTED','COMPLETED','REJECTED']
+        if not status in statuses:
+            return jsonify({'error':'status not among valid statuses '+str(statuses)})
+        elif orders.get_order_by_id(order_id) is None:
             return jsonify({'error':'unknown order Id.'})
         else:
             status = data["status"]

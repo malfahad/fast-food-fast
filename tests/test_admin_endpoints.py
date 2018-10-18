@@ -19,14 +19,14 @@ class TestAPI(unittest.TestCase):
     def test_admin_login(self):
         self.endpoint = '/api/v1/auth/admin/login'
         """_with_valid_credentials"""
-        result = self.app.post(self.endpoint, data = json.dumps({'username':'admin','password':'admin'}),content_type='application/json')
+        result = self.app.post(self.endpoint, data = json.dumps({'email':'adminuser@gmail.com','password':'adminpass'}),content_type='application/json')
         self.assertEqual(result.status_code,200)
-        """_with_wrong_username"""
-        result = self.app.post(self.endpoint,data= json.dumps({'username':'not_the_admin','password':'admin'}),content_type='application/json')
+        """_with_wrong_email"""
+        result = self.app.post(self.endpoint,data= json.dumps({'email':'not_the_admin@gmail.com','password':'adminpass'}),content_type='application/json')
         self.assertEqual(result.status_code,400)
         """_with_missing_field"""
-        result = self.app.post(self.endpoint,data= json.dumps({'username':'admin'}),content_type='application/json')
-        self.assertEqual(result.status_code,206)
+        result = self.app.post(self.endpoint,data= json.dumps({'email':'adminuser@gmail.com'}),content_type='application/json')
+        self.assertEqual(result.status_code,400)
     def test_admin_logout(self):
         self.endpoint = '/api/v1/auth/admin/logout'
         self.endpoint_login = '/api/v1/auth/admin/login'
@@ -34,7 +34,7 @@ class TestAPI(unittest.TestCase):
         result = self.app.get(self.endpoint)
         self.assertEqual(result.status_code,401)
         """ Test admin logout with access token"""
-        result = self.app.post(self.endpoint_login, data = json.dumps({'username':'admin','password':'admin'}),content_type='application/json')
+        result = self.app.post(self.endpoint_login, data = json.dumps({'email':'adminuser@gmail.com','password':'adminpass'}),content_type='application/json')
         self.assertEqual(result.status_code,200)
         access_token = result.json["authorization"]
         result = self.app.get(self.endpoint,headers={'Authorization':access_token})

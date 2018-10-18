@@ -1,8 +1,20 @@
+[![Build Status](https://travis-ci.org/malfahad/fast-food-fast.svg?branch=feedback)](https://travis-ci.org/malfahad/fast-food-fast)
+
+[![Coverage Status](https://coveralls.io/repos/github/malfahad/fast-food-fast/badge.svg?branch=feedback)](https://coveralls.io/github/malfahad/fast-food-fast?branch=feedback)
+
+[![Maintainability](https://api.codeclimate.com/v1/badges/9e7dff2d8002fef34891/maintainability)](https://codeclimate.com/github/malfahad/fast-food-fast/maintainability)
+
 
 # fast-food-fast
 
 Fast food fast is a food ordering web application.
 This branch is for the fast-food-fast api. The app entry point is at ` app.py `
+
+
+#Documentation
+
+Documentation for this api is at:
+https://myfastfoodfast.docs.apiary.io
 
 ## implemented endpoints
 
