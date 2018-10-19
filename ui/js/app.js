@@ -163,26 +163,6 @@ $(document).ready(function(){
   }
 
 });
-/*
-function ensure_auth(failed_page){
-  var x = null;
-  if (failed_page =="login.html")
-  x = api_domain+'/me'
-  else
-  x = api_domain+'/admin/me'
-
-  make_network_call(x,null,'GET',
-  function(data,status,request){
-    console.log('success',data)
-    client_id = request.getResponseHeader('client-id')
-  //  localStorage.setItem("client-id",client_id);
-  },
-  function(xhr){
-    console.log('failed',xhr)
-    moveto(failed_page);
-  })
-}
-*/
 function make_network_call(url,data,type,onSuccess,onError){
 
 if(type == 'GET'){

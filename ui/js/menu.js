@@ -13,7 +13,6 @@ function prepareMenu(_for){
     function(data){
         console.log('failed',data)
     })
-
 }
 
   $("#order-submit").click(function(){
@@ -54,9 +53,9 @@ function addMenuItem(item,_for){
   //image
   i = "<img class=\"menu-item-img\" src=\""+item.image_url+"\" alt=\"menu Image\">";
   t = "<h4 class=\"heading menu-item-title\"> "+item.title+" </h4>"
-  d =   "<p> "+item.description+" </p>"
+  d = "<p> "+item.description+" </p>"
   a = "<p> Price: Ush "+item.amount+" </p>"
-  r =     "<a id=\"remove-"+item.id+"\" class=\"menu-item-button\" >Remove</a>";
+  r = "<a id=\"remove-"+item.id+"\" class=\"menu-item-button\" >Remove</a>";
   i_a = "<a class=\"menu-item-button\" id=\"item-btn-add-"+item.id+"\">Add</a>"
   i_r = "<a class=\"menu-item-button\" id=\"item-btn-remove-"+item.id+"\" hidden>Remove</a>"
   if(_for == 'admin'){
