@@ -26,7 +26,8 @@ function submitOrder(){
 }
 
 function add_to_order(itemId){
-console.log('added item with id '+itemId)
+  itemId = ''+itemId
+  console.log('added item with id '+itemId)
 if(Object.keys(myOrder).indexOf(itemId) == -1)
 {
   myOrder[itemId] = {
@@ -46,6 +47,7 @@ else{
     }
     prepareOrderSummary()
 }
+console.log(JSON.stringify(myOrder));
 }
 
 function remove_from_order(itemId){

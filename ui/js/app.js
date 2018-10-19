@@ -133,7 +133,7 @@ function logOut(who){
     })
   }
 }
-myOrder = []
+myOrder = {}
 menu = {}
 client_id = localStorage.getItem("client-id")
 admin_id  = localStorage.getItem("admin-client-id")
@@ -144,20 +144,20 @@ $(document).ready(function(){
 
   switch(getThisPage()){
     case 'orders.html':
-        ensure_auth('login.html')
+        //ensure_auth('login.html')
         prepareMenu('user')
         prepareOrderSummary()
         break;
     case 'admin-menu.html':
-        ensure_auth('admin-login.html')
+       //ensure_auth('admin-login.html')
        prepareMenu('admin')
        break;
     case 'orders-history.html':
-       ensure_auth('login.html')
+       //ensure_auth('login.html')
        prepareOrderHistory('user')
        break;
       case 'admin-orders.html':
-      ensure_auth('admin-login.html')
+       //ensure_auth('admin-login.html')
        prepareOrderHistory('admin')
        break;
   }
