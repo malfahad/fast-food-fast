@@ -1,115 +1,106 @@
 //localhost
-var api_domain = "http://127.0.0.1:5000/api/v1"
+//var api_domain = "http://127.0.0.1:5000/api/v1"
 //remote
-//var api_domain = "https://andelafastfoodfast.herokuapp.com/api/v1"
+var api_domain = "https://andelafastfoodfast.herokuapp.com/api/v1"
 
-$('#form-admin-login').submit(function(e){
-  e.preventDefault();
-  $('#server-error').hide();
-  var u = $('#admin_login_username').val();
-  var p = $('#admin_login_password').val();
 
-    make_network_call(api_domain+'/admin/login',
-    {'username':u,'password':p},
+if(getThisPage() == 'admin-login.html')
+document.getElementById('form-admin-login').onsubmit = function(e){
+  e.preventDefault()
+  document.getElementById('server-error').style.display = "none"
+  var u = document.getElementById('admin_login_username').value;
+  var p = document.getElementById('admin_login_password').value;
+
+    make_network_call(api_domain+'/auth/admin/login',
+    {'email':u,'password':p},
     'POST',
-    function(data,status,request){
-      console.log('success',data)
-      if(status == 'success'){
-        if(data['error'] != undefined){
-          $('#server-error').text(data['error'])
-            $('#server-error').show();
-        }else{
-          admin_client_id = request.getResponseHeader('admin-client-id');
-          //alert(admin_client_id)
-          localStorage.setItem("admin-client-id",admin_client_id);
+    function(data){
+          token = data['authorization'];
+          //alert(token)
+          localStorage.setItem("authorization",token);
           moveto('admin-menu.html');
-        }
-      }
+
     },
-    function(xhr){
-      console.log('failed',xhr)
+    function(data){
+      document.getElementById('server-error').innerHTML = data['error']
+      document.getElementById('server-error').style.display = "block";
     });
-});
 
+}
 
-
-$('#form-user-login').submit(function(e){
+if(getThisPage() == 'login.html')
+document.getElementById('form-user-login').onsubmit = function(e){
   e.preventDefault();
-  $('#server-error').hide();
-  var u = $('#user_login_username').val();
-  var p = $('#user_login_password').val();
+  document.getElementById('server-error').style.display = "none"
+  var u = document.getElementById('user_login_username').value;
+  var p = document.getElementById('user_login_password').value;
 
-
-  make_network_call(api_domain+'/login',
-  {'username':u,'password':p},
+  make_network_call(api_domain+'/auth/login',
+  {'email':u,'password':p},
   'POST',
-  function(data,status,request){
-    console.log('success',data)
-    if(status == 'success'){
-      if(data['error'] != undefined){
-        $('#server-error').text(data['error'])
-          $('#server-error').show();
-      }else{
-        client_id = request.getResponseHeader('client-id');
+  function(data){
+        console.log('success',JSON.stringify(data))
+        token = data['authorization'];
         //alert(client_id)
-        localStorage.setItem("client-id",client_id);
+        localStorage.setItem("authorization",token);
         moveto('orders.html')
-      }
-    }
   },
-  function(xhr){
-    console.log('failed',xhr)
+  function(data){
+    document.getElementById('server-error').innerHTML = data['error']
+    document.getElementById('server-error').style.display = "block"
+    console.log('failed',JSON.stringify(data))
   });
 
-});
+}
+console.log('ready')
 
-
-$('#form-user-signup').submit(function(e){
+if(getThisPage() == 'signup.html')
+document.getElementById('form-user-signup').onsubmit = function(e){
   e.preventDefault();
-  $('#server-error').hide();
-  var fn = $('#user_signup_fullname').val();
-  var u = $('#user_signup_username').val();
-  var p = $('#user_signup_password').val();
-  var p2 = $('#user_signup_password2').val();
+  document.getElementById('server-error').style.display = "none"
+  var fn = document.getElementById('user_signup_fullname').value;
+  var u = document.getElementById('user_signup_username').value;
+  var p = document.getElementById('user_signup_password').value;
+  var p2 = document.getElementById('user_signup_password2').value;
 
   if(p != p2){
-    $('#server-error').text("passwords do not match")
-      $('#server-error').show();
+      document.getElementById('server-error').innerHTML = "passwords do not match"
+      document.getElementById('server-error').style.display = "block"
       return;
     }
-    console.log({'full name':fn,'username':u,'password':p})
+    console.log({'full name':fn,'email':u,'password':p})
 
-    make_network_call(api_domain+'/register',
-    {'full name':fn,'username':u,'password':p},
+    make_network_call(api_domain+'/auth/register',
+    {'full name':fn,'email':u,'password':p},
     'POST',
-    function(data,status,request){
-      console.log('success',data)
-      if(status == 'success'){
-        if(data['error'] != undefined){
-          $('#server-error').text(data['error'])
-            $('#server-error').show();
-        }else{
-          client_id = request.getResponseHeader('client-id');
-          //alert(client_id)
-          localStorage.setItem("client-id",client_id);
-          moveto('orders.html');
-        }
-      }
-    },
-    function(xhr){
-      console.log('failed',xhr)
-    })
-});
+    function(data){
+      console.log('success',JSON.stringify(data))
+      token = data['authorization'];
+      //alert(client_id)
+      localStorage.setItem("authorization",token);
+      moveto('orders.html');
 
-$("#admin-logout").click(function(e){
+    },
+    function(data){
+        document.getElementById('server-error').innerHTML = data['error']
+        document.getElementById('server-error').style.display = "block"
+        console.log('failed',data)
+    })
+}
+
+
+if(getThisPage().split('-')[0] == 'admin')
+document.getElementById('admin-logout').onclick = function(e){
   e.preventDefault()
   logOut('admin')
-})
+}
 
-$("#user-logout").click(function(e){
+if(getThisPage().split('-')[0] == 'orders')
+document.getElementById('user-logout').onclick = function(e){
   e.preventDefault()
   logOut('user')
-})
+}
+
 
 function moveto(page){
   a = window.location.toString().split('/')
@@ -125,79 +116,90 @@ function getThisPage(){
 
 function logOut(who){
   if (who == 'user'){
-    localStorage.removeItem('client-id')
-    make_network_call(api_domain+'/logout',null,'GET',null,null)
-    moveto('login.html')
+    make_network_call(api_domain+'/auth/logout',null,'GET',function(data){
+      //on success
+      console.log(JSON.stringify(data))
+      localStorage.removeItem('authorization')
+      moveto('login.html')
+      },function(data){
+      //on error
+      console.log(JSON.stringify(data));
+    })
   }
   else{
-    localStorage.removeItem('admin-client-id')
-    make_network_call(api_domain+'/admin/logout',null,'GET',null,null)
-    moveto('admin-login.html')
+    make_network_call(api_domain+'/auth/admin/logout',null,'GET',function(data){
+      //on success
+      console.log(JSON.stringify(data))
+      localStorage.removeItem('authorization')
+      moveto('admin-login.html')
+      },function(data){
+      //on error
+      console.log(JSON.stringify(data));
+    })
   }
 }
-myOrder = []
+myOrder = {}
 menu = {}
 client_id = localStorage.getItem("client-id")
 admin_id  = localStorage.getItem("admin-client-id")
 
-$(document).ready(function(){
-  console.log('ready')
-  $('#server-error').hide()
+ready = function(){
+//  document.getElementById('server-error').style.display = "none"
 
   switch(getThisPage()){
     case 'orders.html':
-        ensure_auth('login.html')
+        //ensure_auth('login.html')
         prepareMenu('user')
         prepareOrderSummary()
         break;
     case 'admin-menu.html':
-        ensure_auth('admin-login.html')
+       //ensure_auth('admin-login.html')
        prepareMenu('admin')
        break;
     case 'orders-history.html':
-       ensure_auth('login.html')
+       //ensure_auth('login.html')
        prepareOrderHistory('user')
        break;
-    case 'admin-orders.html':
-      ensure_auth('admin-login.html')
+      case 'admin-orders.html':
+       //ensure_auth('admin-login.html')
        prepareOrderHistory('admin')
        break;
   }
-
-});
-
-function ensure_auth(failed_page){
-  var x = null;
-  if (failed_page =="login.html")
-  x = api_domain+'/me'
-  else
-  x = api_domain+'/admin/me'
-
-  make_network_call(x,null,'GET',
-  function(data,status,request){
-    console.log('success',data)
-    client_id = request.getResponseHeader('client-id')
-  //  localStorage.setItem("client-id",client_id);
-  },
-  function(xhr){
-    console.log('failed',xhr)
-    moveto(failed_page);
-  })
 }
 
 function make_network_call(url,data,type,onSuccess,onError){
-  //alert(client_id,admin_id)
-  $.ajax({
-    url:url,
-    type:type,
-    data:data,
-    headers:{
-    'admin-client-id':admin_id,
-    'client-id':client_id,
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Credentials': true
-  },
-  success:onSuccess,
-  error:onError
-  });
+
+if(type == 'GET'){
+  fetchdata = {
+    method : type,
+    headers: {'content-type':'application/json','Authorization':localStorage.getItem('authorization')}
+  }
+}else{
+   fetchdata = {
+    method : type,
+    body :JSON.stringify(data),
+    headers: {'content-type':'application/json','Authorization':localStorage.getItem('authorization')}
+  }
 }
+
+  failed = false;
+
+  fetch(url,fetchdata)
+  .then(function(response){
+    if(response.status >=400)
+    failed = true
+    return response.json()
+  })
+  .then(function(data){
+    if(failed)
+      onError(data)
+    else {
+      onSuccess(data)
+    }
+  }).catch(function(error){
+    console.log(error);
+  })
+
+}
+
+ready()
