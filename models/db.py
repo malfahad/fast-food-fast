@@ -18,6 +18,7 @@ class DB:
         #self.conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         self.cursor = self.conn.cursor()
         self.make_tables()
+        self.drop_table('Orders')
 
     def drop_table(self,tablename):
         self.command = "DROP TABLE "+tablename+";"
