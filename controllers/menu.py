@@ -19,7 +19,7 @@ class MenuController:
         if data is None:
             return jsonify({'error':'No Json Data received. '}), 400
         if not "title" in data or not "description" in data or not "amount" in data:
-            return jsonify({'error':'required field is missing.'}),200
+            return jsonify({'error':'required field is missing.'}),400
         else:
             title = data["title"].strip()
             description = data["description"]

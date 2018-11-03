@@ -111,6 +111,7 @@ def get_order(order_id):
 @ensure_logged_in
 def post_orders():
     data = request.get_json()
+    data['ordered_by'] = g.user
     return orders_controller.add_new_order(data)
 
 @app.route('/api/v1/orders/<order_id>', methods=['PUT'])

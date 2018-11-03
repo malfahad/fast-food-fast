@@ -52,7 +52,7 @@ class OrdersController:
             return jsonify({'error':'order id must be a number '})
 
         status = data["status"].strip().upper()
-        statuses = ['CREATED','ACCEPTED','COMPLETED','REJECTED']
+        statuses = ['CREATED','CONFIRMED','COMPLETED','REJECTED']
         if not status in statuses:
             return jsonify({'error':'status not among valid statuses '+str(statuses)})
         elif orders.get_order_by_id(order_id) is None:
