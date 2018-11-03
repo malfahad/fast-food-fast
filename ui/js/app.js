@@ -4,6 +4,7 @@ var api_domain = "http://127.0.0.1:5000/api/v1"
 //var api_domain = "https://andelafastfoodfast.herokuapp.com/api/v1"
 
 
+if(getThisPage() == 'admin-login.html')
 document.getElementById('form-admin-login').onsubmit = function(e){
   e.preventDefault()
   document.getElementById('server-error').style.display = "none"
@@ -27,6 +28,7 @@ document.getElementById('form-admin-login').onsubmit = function(e){
 
 }
 
+if(getThisPage() == 'login.html')
 document.getElementById('form-user-login').onsubmit = function(e){
   e.preventDefault();
   document.getElementById('server-error').style.display = "none"
@@ -50,8 +52,9 @@ document.getElementById('form-user-login').onsubmit = function(e){
   });
 
 }
+console.log('ready')
 
-
+if(getThisPage() == 'signup.html')
 document.getElementById('form-user-signup').onsubmit = function(e){
   e.preventDefault();
   document.getElementById('server-error').style.display = "none"
@@ -85,11 +88,14 @@ document.getElementById('form-user-signup').onsubmit = function(e){
     })
 }
 
+
+if(getThisPage().split('-')[0] == 'admin')
 document.getElementById('admin-logout').onclick = function(e){
   e.preventDefault()
   logOut('admin')
 }
 
+if(getThisPage().split('-')[0] == 'orders')
 document.getElementById('user-logout').onclick = function(e){
   e.preventDefault()
   logOut('user')
@@ -137,9 +143,8 @@ menu = {}
 client_id = localStorage.getItem("client-id")
 admin_id  = localStorage.getItem("admin-client-id")
 
-$(document).ready(function(){
-  console.log('ready')
-  document.getElementById('server-error').style.display = "none"
+ready = function(){
+//  document.getElementById('server-error').style.display = "none"
 
   switch(getThisPage()){
     case 'orders.html':
@@ -160,7 +165,7 @@ $(document).ready(function(){
        prepareOrderHistory('admin')
        break;
   }
-});
+}
 
 function make_network_call(url,data,type,onSuccess,onError){
 
@@ -196,3 +201,5 @@ if(type == 'GET'){
   })
 
 }
+
+ready()

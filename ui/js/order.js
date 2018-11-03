@@ -1,28 +1,29 @@
 function submitOrder(){
   var a = []
-  $("#order-summary").children().each(function(i){
-    a.push($(this).text())
-    if($("#order-summary").children().length - $(this).index() == 1){
-      var t = $("#order-total").text().split(' ')[2];
+
+
+    Array.from(document.getElementById("order-summary").children).forEach(function(item,index){
+    a.push(item.innerHTML)
+    console.log(item.innerHTML);
+    if(document.getElementById("order-summary").children.length - index == 1){
+      var t = document.getElementById("order-total").innerHTML.split(' ')[2];
       console.log({'total':t,'items':a,'status':'CREATED'})
       make_network_call(api_domain+'/orders',
         {'total':t,'items':a,'status':'CREATED'},
         'POST',
-        function(data,status,request){
-          if(data["error"] != undefined)
-          alert(data["error"]);
-          else{
-            console.log('success',data)
-            //moveto('orders-history.html')
-            }
+        function(data){
+          console.log('success',data)
+          moveto('orders-history.html')
         },
-        function(xhr){
-          console.log(xhr);
+        function(data){
+          alert(data["error"]);
         }
       );
+
     }
   });
 }
+
 
 function add_to_order(itemId){
   itemId = ''+itemId
@@ -34,7 +35,7 @@ if(Object.keys(myOrder).indexOf(itemId) == -1)
     title:menu[itemId]["title"],
     amount:1*menu[itemId]["amount"]
   }
-  $("#item-btn-remove-"+itemId).show()
+  document.getElementById("item-btn-remove-"+itemId).style.display = "block"
   prepareOrderSummary()
 }
 else{
@@ -54,7 +55,7 @@ function remove_from_order(itemId){
   if(myOrder[itemId]['qty'] == 1)
   {
     delete myOrder[itemId]
-    $("#item-btn-remove-"+itemId).hide()
+    document.getElementById("item-btn-remove-"+itemId).style.display = "none"
     prepareOrderSummary()
   }
   else{
@@ -69,37 +70,46 @@ function remove_from_order(itemId){
 }
 
 function prepareOrderSummary(){
-  $('#order-summary').empty()
-  $('#order-total').hide()
-  $('#order-submit').hide()
+  document.getElementById("order-summary").innerHTML = ""
+  document.getElementById("order-total").style.display = "none"
+  document.getElementById("order-submit").style.display = "none"
+
   var m = Object.keys(myOrder)
   var total = 0
   for (i =0;i<m.length;i++){
     let itemstring =   "<li>"+myOrder[m[i]]['qty']+"x "+myOrder[m[i]]['title']+"  -  "+myOrder[m[i]]['amount']+"</li>"+"\n"
     total+=myOrder[m[i]]['amount']
-  $('#order-summary').append(itemstring)
+    document.getElementById("order-summary").appendChild(makeHTMLObject(itemstring))
   }
+
   if(m.length>0){
-    $('#order-total').text('Total Ush '+total)
-    $('#order-total').show()
-    $('#order-submit').show()
+    console.log(''+total);
+    document.getElementById("order-total").innerHTML = 'Total Ush '+total
+    document.getElementById("order-total").style.display = "block"
+    document.getElementById("order-submit").style.display = "block"
   }
+
 }
 
 function prepareOrderHistory(_for){
   console.log("fetch order history here");
-  $("#orders-list").empty();
+  emptyOrders()
   make_network_call(api_domain+'/orders',null,'GET',function(data){
     //on success
     console.log(JSON.stringify(data["data"]))
     data = data["data"]
-    Object.keys(data).forEach(function(key){addOrderHistoryItem(data[key],_for)});
-    if(Object.keys(data).length == 0)$("#orders-list").append("<p>No recent orders.</p>")
-    },function(data){
+    Object.keys(data).reverse().forEach(function(key){addOrderHistoryItem(data[key],_for)});
+    if(Object.keys(data).length == 0)document.getElementById('orders-list').appendChild(makeHTMLObject("<p>No recent orders.</p>"))
+    },
+    function(data){
     //on error
     console.log(JSON.stringify(data));
   })
 
+}
+function emptyOrders(){
+  var orders = document.getElementById('orders-list')
+  while(orders.firstChild)orders.removeChild(orders.firstChild)
 }
 
 function addOrderHistoryItem(item,_for){
@@ -122,28 +132,30 @@ function addOrderHistoryItem(item,_for){
   if(_for == 'admin'){
     //for admin
     var itemstring = "<div class=\"menu-item\">\n"+i+t+d+a+m1+m2+m3+m4+m5+m6+m7+"</div>"
-    $("#orders-list").append(itemstring);
-    $("#select-"+item.order_id).change(function(){
-      var x = $('#select-'+item.order_id+' option:selected').text()
+    document.getElementById('orders-list').appendChild(makeHTMLObject(itemstring));
+
+
+    document.getElementById("select-"+item.order_id).onchange = function(){
+      var x = document.getElementById('select-'+item.order_id)
+      x = x.options[x.selectedIndex].value
+
       make_network_call(api_domain+'/orders/'+item.order_id,
       {"status":x},
-      'PUT',function (data,status,request) {
-        if(data['error'] != undefined){
-          console.log(data['error']);
-          alert(data['error'])
-        }else{
-          console.log(data);
-        }
+      'PUT',function (data) {
+        console.log(data);
+        alert(data['success'])
       },
-      function (xhr) {
-        console.log(xhr);
-      }
-    )
-    })
+      function (data) {
+        console.log(data);
+        alert(data['error'])
+      });
+
+    }
+
   }else{
     //for user
     var itemstring = "<div class=\"menu-item\">\n"+i+t+d+a+n+"</div>\n";
-    $("#orders-list").append(itemstring);
+    document.getElementById("orders-list").appendChild(makeHTMLObject(itemstring));
   }
 }
 
