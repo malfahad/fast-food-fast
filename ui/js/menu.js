@@ -49,7 +49,6 @@ document.getElementById('form-menu-item').onsubmit = function(e){
 }
 
 
-
 function addMenuItem(item,_for){
   //image
   i = "<img class=\"menu-item-img\" src=\""+item.image_url+"\" alt=\"menu Image\">";
