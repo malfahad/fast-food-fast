@@ -4,11 +4,11 @@ var api_domain = "http://127.0.0.1:5000/api/v1"
 //var api_domain = "https://andelafastfoodfast.herokuapp.com/api/v1"
 
 
-$('#form-admin-login').submit(function(e){
-  e.preventDefault();
-  $('#server-error').hide();
-  var u = $('#admin_login_username').val();
-  var p = $('#admin_login_password').val();
+document.getElementById('form-admin-login').onsubmit = function(e){
+  e.preventDefault()
+  document.getElementById('server-error').style.display = "none"
+  var u = document.getElementById('admin_login_username').value;
+  var p = document.getElementById('admin_login_password').value;
 
     make_network_call(api_domain+'/auth/admin/login',
     {'email':u,'password':p},
@@ -21,19 +21,17 @@ $('#form-admin-login').submit(function(e){
 
     },
     function(data){
-      $('#server-error').text(data['error'])
-      $('#server-error').show();
+      document.getElementById('server-error').innerHTML = data['error']
+      document.getElementById('server-error').style.display = "block";
     });
-});
 
+}
 
-
-$('#form-user-login').submit(function(e){
+document.getElementById('form-user-login').onsubmit = function(e){
   e.preventDefault();
-  $('#server-error').hide();
-  var u = $('#user_login_username').val();
-  var p = $('#user_login_password').val();
-
+  document.getElementById('server-error').style.display = "none"
+  var u = document.getElementById('user_login_username').value;
+  var p = document.getElementById('user_login_password').value;
 
   make_network_call(api_domain+'/auth/login',
   {'email':u,'password':p},
@@ -46,25 +44,25 @@ $('#form-user-login').submit(function(e){
         moveto('orders.html')
   },
   function(data){
-    $('#server-error').text(data['error'])
-    $('#server-error').show();
+    document.getElementById('server-error').innerHTML = data['error']
+    document.getElementById('server-error').style.display = "block"
     console.log('failed',JSON.stringify(data))
   });
 
-});
+}
 
 
-$('#form-user-signup').submit(function(e){
+document.getElementById('form-user-signup').onsubmit = function(e){
   e.preventDefault();
-  $('#server-error').hide();
-  var fn = $('#user_signup_fullname').val();
-  var u = $('#user_signup_username').val();
-  var p = $('#user_signup_password').val();
-  var p2 = $('#user_signup_password2').val();
+  document.getElementById('server-error').style.display = "none"
+  var fn = document.getElementById('user_signup_fullname').value;
+  var u = document.getElementById('user_signup_username').value;
+  var p = document.getElementById('user_signup_password').value;
+  var p2 = document.getElementById('user_signup_password2').value;
 
   if(p != p2){
-    $('#server-error').text("passwords do not match")
-      $('#server-error').show();
+      document.getElementById('server-error').innerHTML = "passwords do not match"
+      document.getElementById('server-error').style.display = "block"
       return;
     }
     console.log({'full name':fn,'email':u,'password':p})
@@ -81,21 +79,22 @@ $('#form-user-signup').submit(function(e){
 
     },
     function(data){
-        $('#server-error').text(data['error'])
-        $('#server-error').show();
+        document.getElementById('server-error').innerHTML = data['error']
+        document.getElementById('server-error').style.display = "block"
         console.log('failed',data)
     })
-});
+}
 
-$("#admin-logout").click(function(e){
+document.getElementById('admin-logout').onclick = function(e){
   e.preventDefault()
   logOut('admin')
-})
+}
 
-$("#user-logout").click(function(e){
+document.getElementById('user-logout').onclick = function(e){
   e.preventDefault()
   logOut('user')
-})
+}
+
 
 function moveto(page){
   a = window.location.toString().split('/')
@@ -140,7 +139,7 @@ admin_id  = localStorage.getItem("admin-client-id")
 
 $(document).ready(function(){
   console.log('ready')
-  $('#server-error').hide()
+  document.getElementById('server-error').style.display = "none"
 
   switch(getThisPage()){
     case 'orders.html':
@@ -161,8 +160,8 @@ $(document).ready(function(){
        prepareOrderHistory('admin')
        break;
   }
-
 });
+
 function make_network_call(url,data,type,onSuccess,onError){
 
 if(type == 'GET'){
